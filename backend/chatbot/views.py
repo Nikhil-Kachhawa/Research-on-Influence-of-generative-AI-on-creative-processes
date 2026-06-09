@@ -11,3 +11,14 @@ def test_connection(request):
     return Response({
         "message": "Hello from Django Backend!"
     })
+
+@api_view(["POST"])
+def chat(request):
+
+    role = request.data.get("role")
+    user_message = request.data.get("message")
+
+    return Response({
+        "response":
+            f"Role={role} | Message={user_message}"
+    })
