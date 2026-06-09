@@ -11,7 +11,7 @@ client = InferenceClient(
     api_key=os.getenv("HF_TOKEN")
 )
 
-MODEL_NAME = "google/gemma-3-4b-it"
+MODEL_NAME = "meta-llama/Llama-3.1-8B-Instruct"
 
 def generate_response(prompt):
 
