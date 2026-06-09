@@ -1,3 +1,10 @@
 from django.contrib import admin
+from .models import (
+    ExperimentCondition,
+    ChatSession,
+    ChatMessage
+)
 
-# Register your models here.
+admin.site.register(ExperimentCondition)
+admin.site.register(ChatSession)
+admin.site.register(ChatMessage)
