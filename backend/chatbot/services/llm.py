@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-print("HF_TOKEN:", os.getenv("HF_TOKEN"))
+# print("HF_TOKEN:", os.getenv("HF_TOKEN")) #testing of token
 
 client = InferenceClient(
     api_key=os.getenv("HF_TOKEN")
