@@ -24,14 +24,14 @@ function ChatPage({ role }) {
   };
 
   return (
-    <div>
+    <div className="app-container">
 
-      <h1>
+      <h1 className="title">
         {role === "idea-generator"
           ? "Idea Generator"
           : "Critical Evaluator"}
       </h1>
-
+    <div className="input-container">
       <input
         type="text"
         value={input}
@@ -43,8 +43,10 @@ function ChatPage({ role }) {
         Send
       </button>
 
-      <h3>{response}</h3>
-
+      <div className="response">
+        {response}
+      </div>
+      </div>
     </div>
   );
 }
