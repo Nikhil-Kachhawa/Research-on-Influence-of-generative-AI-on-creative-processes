@@ -10,55 +10,19 @@ from chatbot.prompts import (
 
 @api_view(["GET"])
 def health(request):
-    return Response({"status": "working"})
-
-
-@api_view(["GET"])
-def test_connection(request):
     return Response({
-        "message": "Hello from Django Backend!"
+        "status": "working"
     })
 
 
-# @api_view(["POST"])
-# def chat(request):
-
-#     user_message = request.data.get("message")
-
-#     return Response({
-#         "response": f"You said: {user_message}"
-#     })
-
-
-@api_view(["GET"])
-def test_llm(request):
-
-    try:
-
-        response = generate_response(
-            "Say hello in one short sentence."
-        )
-
-        return Response({
-            "success": True,
-            "response": response
-        })
-
-    except Exception as e:
-
-        return Response({
-            "success": False,
-            "error": str(e)
-        })
-    
 @api_view(["POST"])
 def chat(request):
 
     role = request.data.get("role")
-
     user_message = request.data.get("message")
 
     if role == "idea-generator":
+
         final_prompt = (
             IDEA_GENERATOR_PROMPT
             + "\n\n"
@@ -66,6 +30,7 @@ def chat(request):
         )
 
     else:
+
         final_prompt = (
             CRITICAL_EVALUATOR_PROMPT
             + "\n\n"
@@ -76,4 +41,4 @@ def chat(request):
 
     return Response({
         "response": ai_response
-    })    
+    })
