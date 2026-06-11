@@ -1,56 +1,8 @@
+@import "tailwindcss";
+
 body {
   margin: 0;
   background: #0b1020;
   color: white;
   font-family: Inter, sans-serif;
-}
-
-.app-container {
-  max-width: 900px;
-  margin: auto;
-  padding: 40px;
-}
-
-.title {
-  text-align: center;
-  font-size: 3rem;
-  margin-bottom: 30px;
-}
-
-.chat-box {
-  background: #141b34;
-  border-radius: 16px;
-  padding: 20px;
-  margin-top: 20px;
-}
-
-.input-container {
-  display: flex;
-  gap: 10px;
-}
-
-.input {
-  flex: 1;
-  padding: 14px;
-  border-radius: 10px;
-  border: none;
-  font-size: 16px;
-}
-
-.send-btn {
-  background: #c8102e;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  padding: 14px 24px;
-  cursor: pointer;
-}
-
-.send-btn:hover {
-  background: #a30d25;
-}
-
-.response {
-  white-space: pre-wrap;
-  line-height: 1.8;
 }
