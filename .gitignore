@@ -2,7 +2,7 @@
 venv/
 __pycache__/
 *.pyc
-db.sqlite3
+*.py[cod]
 super.user
 
 # React
@@ -10,6 +10,7 @@ node_modules/
 dist/
 
 # Environment
+venv/
 .env
 
 # VSCode
@@ -17,3 +18,10 @@ dist/
 
 # OS
 .DS_Store
+
+# Vite
+.vite/
+
+# Django
+db.sqlite3
+staticfiles/
