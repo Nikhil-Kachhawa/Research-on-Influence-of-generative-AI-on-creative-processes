@@ -36,6 +36,10 @@ class ChatMessage(models.Model):
         related_name="messages"
     )
 
+    role = models.CharField(
+        max_length=30
+    )
+
     user_message = models.TextField()
 
     ai_response = models.TextField()
