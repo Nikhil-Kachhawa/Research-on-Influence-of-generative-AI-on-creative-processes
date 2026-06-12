@@ -23,19 +23,23 @@ def chat(request):
 
     if role == "idea-generator":
 
-        final_prompt = (
-            IDEA_GENERATOR_PROMPT
-            + "\n\n"
-            + user_message
-        )
+        final_prompt = f"""
+        {IDEA_GENERATOR_PROMPT}
+
+        User Request:
+
+        {user_message}
+        """
 
     else:
 
-        final_prompt = (
-            CRITICAL_EVALUATOR_PROMPT
-            + "\n\n"
-            + user_message
-        )
+        final_prompt = f"""
+        {CRITICAL_EVALUATOR_PROMPT}
+
+        User Thesis Idea:
+
+        {user_message}
+        """
 
     ai_response = generate_response(final_prompt)
 

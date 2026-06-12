@@ -1,132 +1,240 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { Link } from "react-router-dom";
 import api from "../services/api";
+import universityLogo from "../assets/uk.svg";
 
-function ChatPage({ role }) {
-const [input, setInput] = useState("");
-const [response, setResponse] = useState("");
-const [loading, setLoading] = useState(false);
+function ChatPage({ role, darkMode, setDarkMode }) {
+  const [input, setInput] = useState("");
+  const [response, setResponse] = useState("");
+  const [loading, setLoading] = useState(false);
 
-const sendMessage = async () => {
-if (!input.trim()) return;
+  useEffect(() => {
+    document.title =
+      role === "idea-generator" ? "Idea Generator" : "Critical Evaluator";
+  }, [role]);
 
-try {
-  setLoading(true);
+  const sendMessage = async () => {
+    if (!input.trim()) return;
 
-  const res = await api.post("chat/", {
-    role: role,
-    message: input,
-  });
+    try {
+      setLoading(true);
 
-  setResponse(res.data.response);
-} catch (error) {
-  console.error(error);
-  setResponse("Something went wrong.");
-} finally {
-  setLoading(false);
-}
+      const res = await api.post("chat/", {
+        role,
+        message: input,
+      });
 
+      setResponse(res.data.response);
+    } catch (error) {
+      console.error(error);
+      setResponse("Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-};
-console.log("Response:", response);
-return ( <div className="min-h-screen bg-[#0B1020] text-white">
-  {/* Navbar */}
-  <div className="border-b border-gray-700">
-    <div className="max-w-6xl mx-auto px-6 py-5 flex justify-between items-center">
+  return (
+    <div
+      className={`min-h-screen overflow-x-hidden transition-colors duration-300 ${
+        darkMode ? "dark-scrollbar" : "light-scrollbar"
+      } ${darkMode ? "bg-[#0B1020] text-white" : "bg-white text-black"}`}
+    >
+      {/* Header */}
+      <header className="border-b border-red-500/30">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <img
+              src={universityLogo}
+              alt="UK Logo"
+              className="h-12 md:h-16 w-auto"
+            />
 
-      <Link
-        to="/"
-        className="text-2xl font-bold hover:text-red-400 transition"
-      >
-        Research Lab AI
-      </Link>
+            <div>
+              <h1 className="font-bold text-lg md:text-2xl">
+                Generative AI Research Lab
+              </h1>
 
-      <span className="text-gray-400">
-        University of Koblenz
-      </span>
+              <p className="text-red-500 text-sm">University of Koblenz</p>
+            </div>
+          </div>
 
-    </div>
-  </div>
+          <div className="flex items-center gap-3 flex-wrap">
+            <Link
+              to="/"
+className={`h-12 px-6 rounded-full border flex items-center justify-center gap-2 transition ${
+  darkMode
+    ? "bg-[#141B34] border-gray-700 hover:border-red-500 text-red-400"
+    : "bg-white border-red-200 hover:border-red-500 text-red-600"
+}`}
+            >
+              🏠 Home
+            </Link>
 
-  <div className="max-w-5xl mx-auto px-6 py-10">
+            <div
+className={`h-12 px-6 rounded-full border flex items-center justify-center gap-2 ${
+  darkMode
+    ? "bg-[#141B34] text-red-400 border-red-500/20"
+    : "bg-red-50 text-red-600 border-red-200"
+}`}
+            >
+              {role === "idea-generator"
+                ? "💡 Idea Generator"
+                : "🔍 Critical Evaluator"}
+            </div>
 
-    {/* Page Title */}
-    <div className="mb-8 text-center">
-
-      <h1 className="text-5xl font-bold mb-3">
-        {role === "idea-generator"
-          ? "💡 Idea Generator"
-          : "🔍 Critical Evaluator"}
-      </h1>
-
-      <p className="text-gray-400">
-        {role === "idea-generator"
-          ? "Generate innovative and creative research ideas."
-          : "Critically evaluate ideas and identify strengths and weaknesses."}
-      </p>
-
-    </div>
-
-    {/* Response Card */}
-    <div className="bg-[#141B34] rounded-2xl shadow-xl p-8 min-h-[300px] mb-6">
-
-      {loading ? (
-        <div className="flex justify-center items-center h-full">
-          <p className="text-xl text-gray-300">
-            Thinking...
-          </p>
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+className={`h-12 w-12 rounded-full border flex items-center justify-center transition ${
+  darkMode
+    ? "bg-[#141B34] border-gray-700 hover:border-red-500"
+    : "bg-white border-red-200 hover:border-red-500"
+}`}
+            >
+              {darkMode ? "☀️" : "🌙"}
+            </button>
+          </div>
         </div>
-      ) : response ? (
-        <div className="prose prose-invert max-w-none">
-          <ReactMarkdown>
-            {response}
-          </ReactMarkdown>
-        </div>
-      ) : (
-        <div className="flex justify-center items-center h-full">
-          <p className="text-gray-400 text-lg">
-            Ask something to get started...
-          </p>
-        </div>
-      )}
+      </header>
 
-    </div>
-
-    {/* Input Area */}
-    <div className="bg-[#141B34] rounded-2xl p-4 shadow-xl">
-
-      <div className="flex gap-3">
-
-        <input
-          className="flex-1 rounded-xl px-4 py-4 text-black text-lg"
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Enter your thesis idea..."
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              sendMessage();
-            }
-          }}
-        />
-
-        <button
-          onClick={sendMessage}
-          disabled={loading}
-          className="bg-[#C8102E] hover:bg-red-700 px-8 py-4 rounded-xl font-semibold transition"
+      {/* Main */}
+      <main className="max-w-6xl mx-auto px-4 md:px-6 py-6">
+        <div
+          className={`rounded-3xl border shadow-xl overflow-hidden ${
+            darkMode
+              ? "bg-[#141B34] border-gray-800"
+              : "bg-white border-red-200"
+          }`}
         >
-          Send
-        </button>
+          {/* Response */}
+          <div
+            className={`h-[65vh] overflow-y-auto p-6 md:p-8 ${
+              darkMode ? "bg-[#141B34]" : "bg-white"
+            }`}
+          >
+            {loading ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <div className="text-5xl mb-4 animate-pulse">🤖</div>
+                  <p>Thinking...</p>
+                </div>
+              </div>
+            ) : response ? (
+              <div
+                className={`max-w-none leading-relaxed ${
+                  darkMode ? "text-gray-200" : "text-gray-800"
+                }`}
+              >
+                <ReactMarkdown
+                  components={{
+                    h1: ({ children }) => (
+                      <h1 className="text-4xl font-bold mt-10 mb-6 text-red-500">
+                        {children}
+                      </h1>
+                    ),
 
-      </div>
+                    h2: ({ children }) => (
+                      <h2 className="text-2xl font-bold mt-8 mb-4 text-red-500">
+                        {children}
+                      </h2>
+                    ),
 
+                    h3: ({ children }) => (
+                      <h3 className="text-xl font-semibold mt-6 mb-3 text-red-500">
+                        {children}
+                      </h3>
+                    ),
+
+                    p: ({ children }) => (
+                      <p className="mb-4 leading-8">{children}</p>
+                    ),
+
+                    ul: ({ children }) => (
+                      <ul className="list-disc ml-6 mb-4 space-y-2">
+                        {children}
+                      </ul>
+                    ),
+
+                    ol: ({ children }) => (
+                      <ol className="list-decimal ml-6 mb-4 space-y-2">
+                        {children}
+                      </ol>
+                    ),
+
+                    li: ({ children }) => (
+                      <li className="leading-7">{children}</li>
+                    ),
+
+                    strong: ({ children }) => (
+                      <strong className="font-semibold">{children}</strong>
+                    ),
+
+                    hr: () => <hr className="my-8 border-gray-700" />,
+                  }}
+                >
+                  {response}
+                </ReactMarkdown>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <div className="text-6xl mb-4">
+                    {role === "idea-generator" ? "💡" : "🔍"}
+                  </div>
+
+                  <h2 className="text-3xl font-bold mb-4">
+                    {role === "idea-generator"
+                      ? "Idea Generator"
+                      : "Critical Evaluator"}
+                  </h2>
+
+                  <p className={darkMode ? "text-gray-400" : "text-gray-600"}>
+                    {role === "idea-generator"
+                      ? "Generate innovative research topics."
+                      : "Analyze and improve research ideas."}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Input */}
+          <div
+            className={`border-t p-4 ${
+              darkMode ? "border-gray-800" : "border-red-100"
+            }`}
+          >
+            <div className="flex flex-col md:flex-row gap-3">
+              <input
+                type="text"
+                value={input}
+                placeholder="Enter your thesis idea..."
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    sendMessage();
+                  }
+                }}
+                className={`flex-1 rounded-2xl px-4 py-4 border outline-none ${
+                  darkMode
+                    ? "bg-[#0B1020] border-gray-700 text-white"
+                    : "bg-gray-50 border-gray-300 text-black"
+                }`}
+              />
+
+              <button
+                onClick={sendMessage}
+                disabled={loading}
+                className="px-8 py-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-semibold transition"
+              >
+                Send
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
-
-  </div>
-</div>
-
-);
+  );
 }
 
 export default ChatPage;

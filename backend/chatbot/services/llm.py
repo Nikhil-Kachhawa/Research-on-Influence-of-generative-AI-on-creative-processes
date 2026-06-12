@@ -1,19 +1,21 @@
 import os
+import logging
 
 from huggingface_hub import InferenceClient
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# print("HF_TOKEN:", os.getenv("HF_TOKEN")) #testing of token
+logger = logging.getLogger(__name__)
+
+MODEL_NAME = "meta-llama/Llama-3.1-8B-Instruct"
 
 client = InferenceClient(
     api_key=os.getenv("HF_TOKEN")
 )
 
-MODEL_NAME = "meta-llama/Llama-3.1-8B-Instruct"
 
-def generate_response(prompt):
+def generate_response(prompt: str):
 
     try:
         completion = client.chat.completions.create(
@@ -21,14 +23,24 @@ def generate_response(prompt):
             messages=[
                 {
                     "role": "user",
-                    "content": prompt
+                    "content": prompt,
                 }
             ],
-            max_tokens=300
+            temperature=0.7,
+            top_p=0.9,
+            max_tokens=1200,
         )
 
-        return completion.choices[0].message.content
+        return (
+            completion.choices[0]
+            .message
+            .content
+            .strip()
+        )
 
-    except Exception as e:
-        print(e)
-        return str(e)
+    except Exception:
+        logger.exception("LLM generation failed")
+
+        return (
+            "Sorry, an error occurred while generating a response."
+        )
