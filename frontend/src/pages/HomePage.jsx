@@ -21,7 +21,9 @@ function HomePage({ darkMode, setDarkMode }) {
               src={universityLogo}
               alt="UK Logo"
               className="h-12 md:h-16 w-auto cursor-pointer transition duration-300 hover:scale-105"
-              onClick={() => setDarkMode(!darkMode)}
+              onClick={() => {
+                window.location.href = "/";
+              }}
             />
 
             <div>
