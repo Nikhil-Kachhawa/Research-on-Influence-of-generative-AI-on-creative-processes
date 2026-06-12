@@ -46,9 +46,10 @@ class ChatSessionAdmin(admin.ModelAdmin):
 class ChatMessageAdmin(admin.ModelAdmin):
     list_display = (
         "id",
-        "session",
         "role",
+        "short_user_message",
         "created_at",
+        "ai_response",
     )
 
     list_filter = (
@@ -64,3 +65,8 @@ class ChatMessageAdmin(admin.ModelAdmin):
     ordering = (
         "-created_at",
     )
+
+    def short_user_message(self, obj):
+        return obj.user_message[:80]
+
+    short_user_message.short_description = "User Message"

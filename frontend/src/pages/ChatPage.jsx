@@ -1,3 +1,4 @@
+import { getSessionId } from "../utils/session";
 import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { Link } from "react-router-dom";
@@ -21,6 +22,7 @@ function ChatPage({ role, darkMode, setDarkMode }) {
       setLoading(true);
 
       const res = await api.post("chat/", {
+        session_id: getSessionId(),
         role,
         message: input,
       });
@@ -62,21 +64,21 @@ function ChatPage({ role, darkMode, setDarkMode }) {
           <div className="flex items-center gap-3 flex-wrap">
             <Link
               to="/"
-className={`h-12 px-6 rounded-full border flex items-center justify-center gap-2 transition ${
-  darkMode
-    ? "bg-[#141B34] border-gray-700 hover:border-red-500 text-red-400"
-    : "bg-white border-red-200 hover:border-red-500 text-red-600"
-}`}
+              className={`h-12 px-6 rounded-full border flex items-center justify-center gap-2 transition ${
+                darkMode
+                  ? "bg-[#141B34] border-gray-700 hover:border-red-500 text-red-400"
+                  : "bg-white border-red-200 hover:border-red-500 text-red-600"
+              }`}
             >
               🏠 Home
             </Link>
 
             <div
-className={`h-12 px-6 rounded-full border flex items-center justify-center gap-2 ${
-  darkMode
-    ? "bg-[#141B34] text-red-400 border-red-500/20"
-    : "bg-red-50 text-red-600 border-red-200"
-}`}
+              className={`h-12 px-6 rounded-full border flex items-center justify-center gap-2 ${
+                darkMode
+                  ? "bg-[#141B34] text-red-400 border-red-500/20"
+                  : "bg-red-50 text-red-600 border-red-200"
+              }`}
             >
               {role === "idea-generator"
                 ? "💡 Idea Generator"
@@ -85,11 +87,11 @@ className={`h-12 px-6 rounded-full border flex items-center justify-center gap-2
 
             <button
               onClick={() => setDarkMode(!darkMode)}
-className={`h-12 w-12 rounded-full border flex items-center justify-center transition ${
-  darkMode
-    ? "bg-[#141B34] border-gray-700 hover:border-red-500"
-    : "bg-white border-red-200 hover:border-red-500"
-}`}
+              className={`h-12 w-12 rounded-full border flex items-center justify-center transition ${
+                darkMode
+                  ? "bg-[#141B34] border-gray-700 hover:border-red-500"
+                  : "bg-white border-red-200 hover:border-red-500"
+              }`}
             >
               {darkMode ? "☀️" : "🌙"}
             </button>
