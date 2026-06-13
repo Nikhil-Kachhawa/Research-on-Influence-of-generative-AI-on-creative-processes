@@ -1,43 +1,115 @@
-# Frontend
+# Research Lab AI - Frontend
 
-Frontend application for Research Lab AI.
+Frontend application for the Research Lab AI platform.
+
+## Overview
+
+This application provides the user interface for interacting with AI-powered research assistants. It communicates with the Django REST API backend and supports multiple research experiment conditions.
 
 ## Tech Stack
 
-* React
-* Vite
-* React Router
-* Axios
-* Tailwind CSS
-* React Markdown
+- React
+- Vite
+- React Router
+- Axios
+- Tailwind CSS
+- React Markdown
 
-## Run Development Server
+## Project Structure
+
+```text
+src/
+├── components/
+│   ├── ChatHeader.jsx
+│   ├── ChatInput.jsx
+│   └── ChatMessages.jsx
+│
+├── pages/
+│   ├── HomePage.jsx
+│   └── ChatPage.jsx
+│
+├── services/
+│   └── api.js
+│
+├── utils/
+│   └── session.js
+│
+└── main.jsx
+```
+
+## Prerequisites
+
+- Node.js 18+
+- npm
+
+## Installation
+
+```bash
+npm install
+```
+
+## Environment Variables
+
+Create a `.env` file in the frontend root directory:
+
+```env
+VITE_API_URL=http://127.0.0.1:8000/api/
+```
+
+For production:
+
+```env
+VITE_API_URL=https://your-backend-domain/api/
+```
+
+## Running the Application
+
+Start the development server:
 
 ```bash
 npm run dev
 ```
 
-Frontend will be available at:
+The application will be available at:
 
 ```text
 http://localhost:5173
 ```
 
-
 ## Available Routes
 
-```text
-/
-/idea-generator
-/critical-evaluator
+| Route | Description |
+|---------|-------------|
+| `/` | Landing page |
+| `/idea-generator` | Idea generation assistant |
+| `/critical-evaluator` | Critical evaluation assistant |
+
+## Backend Integration
+
+The frontend depends on the Django REST API backend.
+
+Ensure the backend service is running and accessible through the configured `VITE_API_URL`.
+
+## Build for Production
+
+```bash
+npm run build
 ```
 
-## Backend Dependency
+Preview the production build locally:
 
-The frontend requires the Django backend API to be running.
-
-Configure the API URL using:
-
-```env
-VITE_API_URL=http://127.0.0.1:8000/api/
+```bash
+npm run preview
 ```
+
+## Deployment
+
+The frontend is deployed on:
+
+- Vercel
+
+Ensure the production API URL is configured through environment variables before deployment.
+
+## License
+
+This project is developed as part of the Research Lab AI platform.

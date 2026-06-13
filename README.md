@@ -1,101 +1,152 @@
-# Gen-AI-for-Creative-Tasks-Roles-Research-Internship
+# Research Lab AI
 
-Research Internship: Influence of Generative AI on Creative Processes
+Research platform for studying the influence of different Generative AI roles on creative and decision-making tasks.
 
-Deployed Link : [Project Link](https://nikhil-research-genai.vercel.app/)
+## Live Demo
+
+🚀 https://nikhil-research-genai.vercel.app/
+
+---
 
 ## Overview
 
-Research Lab AI is a web application that evaluates the influence of different AI roles on creative tasks.
+Research Lab AI is a full-stack web application designed to evaluate how different AI personas influence user thinking, idea generation, and evaluation processes.
 
-Current AI Roles:
+The platform allows participants to interact with specialized AI roles under controlled experimental conditions of master thesis topics while capturing conversation data for research analysis.
 
-* 💡 Idea Generator
-* 🔍 Critical Evaluator
+### Current AI Roles
 
-Tech Stack:
+- 💡 Idea Generator
+- 🔍 Critical Evaluator
+---
 
-* Frontend: React + Vite + Tailwind CSS
-* Backend: Django + Django REST Framework
-* LLM: Llama 3.1 via Hugging Face Inference API
-* Database: SQLite
-* Deployment:
+## Architecture
 
-  * Frontend: Vercel
-  * Backend: Render
+```text
+Frontend (React)
+        │
+        ▼
+Django REST API
+        │
+        ▼
+Prompt Builder
+        │
+        ▼
+Llama 3.1 (Hugging Face)
+        │
+        ▼
+PostgreSQL
+```
+
+---
+
+## Tech Stack
+
+### Frontend
+
+- React
+- Vite
+- React Router
+- Axios
+- Tailwind CSS
+- React Markdown
+
+### Backend
+
+- Django
+- Django REST Framework
+- Django Admin
+- WhiteNoise
+
+### AI & Data
+
+- Llama 3.1 8B Instruct
+- Hugging Face Inference API
+- PostgreSQL (Neon)
+
+### Deployment
+
+- Frontend: Vercel
+- Backend: Render
+- Database: Neon PostgreSQL
+
+---
+
+## Project Structure
+
+```text
+Gen-AI-for-Creative-Tasks-Roles-Research-Internship/
+│
+├── backend/
+│   ├── chatbot/
+│   │   ├── models.py
+│   │   ├── views.py
+│   │   ├── urls.py
+│   │   ├── prompts.py
+│   │   └── services/
+│   │       └── llm.py
+│   │
+│   ├── config/
+│   ├── manage.py
+│   └── requirements.txt
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   └── utils/
+│   │
+│   ├── public/
+│   ├── package.json
+│   └── vite.config.js
+│
+└── README.md
+```
 
 ---
 
 ## Prerequisites
 
-Before running the project locally, install:
+### Backend
 
-### Python
+- Python 3.13+
+- PostgreSQL 16+
 
-Recommended Version:
+### Frontend
 
-```bash
-Python 3.13+
-```
+- Node.js 22+
+- npm 10+
 
-Verify installation:
+### Tools
 
-```bash
-python --version
-```
-
-### Node.js
-
-Recommended Version:
-
-```bash
-Node.js 22+
-```
-
-Verify installation:
-
-```bash
-node --version
-npm --version
-```
-
-### Git
-
-Verify installation:
-
-```bash
-git --version
-```
+- Git
 
 ---
 
-## Clone or Download this Repository
+## Backend Setup
 
----
-
-# Backend Setup
-
-Navigate to backend folder:
+Navigate to the backend directory:
 
 ```bash
 cd backend
 ```
 
-Create virtual environment:
+Create a virtual environment:
 
 ```bash
 python -m venv venv
 ```
 
-Activate virtual environment:
+Activate the environment:
 
-Windows:
+### Windows
 
 ```bash
 venv\Scripts\activate
 ```
 
-Alternatively for Linux / macOS:
+### Linux / macOS
 
 ```bash
 source venv/bin/activate
@@ -109,19 +160,21 @@ pip install -r requirements.txt
 
 ---
 
-## Environment Variables
+## Backend Environment Variables
 
-Create a `.env` file inside the `backend` directory.
-
-Example:
+Create a `.env` file inside the backend directory:
 
 ```env
-HF_TOKEN=your_huggingface_api_token
+HF_TOKEN=your_huggingface_token
+
+DEBUG=True
+
+DB_NAME=your_database_name
+DB_USER=your_database_user
+DB_PASSWORD=your_database_password
+DB_HOST=localhost
+DB_PORT=5432
 ```
-
----
-
-## Database Setup
 
 Apply migrations:
 
@@ -129,13 +182,13 @@ Apply migrations:
 python manage.py migrate
 ```
 
-Run backend server:
+Run the development server:
 
 ```bash
 python manage.py runserver
 ```
 
-Backend will run on:
+Backend URL:
 
 ```text
 http://127.0.0.1:8000
@@ -143,9 +196,9 @@ http://127.0.0.1:8000
 
 ---
 
-# Frontend Setup
+## Frontend Setup
 
-Navigate to frontend folder:
+Navigate to the frontend directory:
 
 ```bash
 cd frontend
@@ -157,13 +210,19 @@ Install dependencies:
 npm install
 ```
 
-Run development server:
+Create a `.env` file:
+
+```env
+VITE_API_URL=http://127.0.0.1:8000/api/
+```
+
+Start the development server:
 
 ```bash
 npm run dev
 ```
 
-Frontend will run on:
+Frontend URL:
 
 ```text
 http://localhost:5173
@@ -171,9 +230,9 @@ http://localhost:5173
 
 ---
 
-# Available Routes
+## Available Routes
 
-Frontend:
+### Frontend
 
 ```text
 /
@@ -181,41 +240,56 @@ Frontend:
 /critical-evaluator
 ```
 
-Backend:
+### Backend
 
 ```text
 /
 /api/health/
 /api/chat/
-/admin/
 ```
 
 ---
 
-# Project Structure
+## Research Objectives
 
-```text
-backend/
-├── chatbot/
-│   ├── services/
-│   │   └── llm.py
-│   ├── prompts.py
-│   ├── views.py
-│   └── urls.py
-│
-├── config/
-├── manage.py
-└── requirements.txt
+The project investigates:
 
-frontend/
-├── src/
-├── public/
-├── package.json
-└── vite.config.js
-```
+- Human-AI collaboration
+- AI-assisted creativity
+- Prompt engineering strategies
+- Role-based AI behavior
+- User interaction patterns
+- Influence of AI personas on decision-making
 
 ---
 
-# Deployed Link
+## Deployment
 
-[Project Link](https://nikhil-research-genai.vercel.app/)
+### Frontend
+
+Hosted on Vercel.
+
+### Backend
+
+Hosted on Render.
+
+### Database
+
+Hosted on Neon PostgreSQL.
+
+---
+
+## Author
+
+**Nikhil Kachhawa**
+
+Master's Student – Web and Data Science  
+University of Koblenz
+
+LinkedIn: https://www.linkedin.com/in/nikhil-kachhawa/
+
+---
+
+## License
+
+This project was developed as part of a Generative AI Research Internship focused on studying the impact of AI roles on creative processes.
