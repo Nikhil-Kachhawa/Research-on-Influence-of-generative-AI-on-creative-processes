@@ -19,6 +19,37 @@ def health(request):
         "status": "working"
     })
 
+@api_view(["GET"])
+def chat_history(request, session_id):
+
+    try:
+        session = ChatSession.objects.get(
+            session_id=session_id
+        )
+
+    except ChatSession.DoesNotExist:
+        return Response(
+            {"messages": []}
+        )
+
+    messages = ChatMessage.objects.filter(
+        session=session
+    ).order_by("created_at")
+
+    data = []
+
+    for msg in messages:
+
+        data.append({
+            "user_message": msg.user_message,
+            "ai_response": msg.ai_response,
+            "created_at": msg.created_at
+        })
+
+    return Response({
+        "messages": data
+    })
+
 @api_view(["POST"])
 def chat(request):
 

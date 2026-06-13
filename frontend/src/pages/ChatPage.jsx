@@ -1,6 +1,6 @@
 import { getSessionId } from "../utils/session";
 import { useState, useEffect } from "react";
-import api from "../services/api";
+import api, { getChatHistory } from "../services/api";
 
 import ChatHeader from "../components/ChatHeader";
 import ChatMessages from "../components/ChatMessages";
@@ -13,10 +13,36 @@ function ChatPage({ role, darkMode, setDarkMode }) {
 
   useEffect(() => {
     document.title =
-      role === "idea-generator"
-        ? "Idea Generator"
-        : "Critical Evaluator";
+      role === "idea-generator" ? "Idea Generator" : "Critical Evaluator";
   }, [role]);
+
+  useEffect(() => {
+    const loadHistory = async () => {
+      try {
+        const data = await getChatHistory(getSessionId());
+
+        const history = [];
+
+        data.messages.forEach((msg) => {
+          history.push({
+            sender: "user",
+            content: msg.user_message,
+          });
+
+          history.push({
+            sender: "ai",
+            content: msg.ai_response,
+          });
+        });
+
+        setMessages(history);
+      } catch (error) {
+        console.error("Failed to load history", error);
+      }
+    };
+
+    loadHistory();
+  }, []);
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -67,16 +93,10 @@ function ChatPage({ role, darkMode, setDarkMode }) {
   return (
     <div
       className={`min-h-screen ${
-        darkMode
-          ? "bg-[#0B1020] text-white"
-          : "bg-white text-black"
+        darkMode ? "bg-[#0B1020] text-white" : "bg-white text-black"
       }`}
     >
-      <ChatHeader
-        role={role}
-        darkMode={darkMode}
-        setDarkMode={setDarkMode}
-      />
+      <ChatHeader role={role} darkMode={darkMode} setDarkMode={setDarkMode} />
 
       <main className="max-w-6xl mx-auto px-4 py-6">
         <div

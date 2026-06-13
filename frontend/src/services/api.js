@@ -7,3 +7,11 @@ const api = axios.create({
 });
 
 export default api;
+
+export const getChatHistory = async (sessionId) => {
+  const response = await api.get(
+    `chat-history/${sessionId}/`
+  );
+
+  return response.data;
+};

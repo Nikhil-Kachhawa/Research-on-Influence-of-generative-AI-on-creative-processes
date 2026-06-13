@@ -8,7 +8,7 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-MODEL_NAME = "meta-llama/Llama-3.1-8B-Instruct"
+MODEL_NAME = "meta-llama/Llama-3.3-70B-Instruct:groq"
 
 client = InferenceClient(
     api_key=os.getenv("HF_TOKEN")
