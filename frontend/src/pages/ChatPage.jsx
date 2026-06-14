@@ -19,7 +19,7 @@ function ChatPage({ role, darkMode, setDarkMode }) {
   useEffect(() => {
     const loadHistory = async () => {
       try {
-        const data = await getChatHistory(getSessionId());
+        const data = await getChatHistory(getSessionId(role));
 
         const history = [];
 
@@ -63,7 +63,7 @@ function ChatPage({ role, darkMode, setDarkMode }) {
       setLoading(true);
 
       const res = await api.post("chat/", {
-        session_id: getSessionId(),
+        session_id: getSessionId(role),
         role,
         message: userMessage,
       });
