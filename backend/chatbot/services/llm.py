@@ -8,7 +8,8 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-MODEL_NAME = "meta-llama/Llama-3.3-70B-Instruct:groq"
+# MODEL_NAME = "meta-llama/Llama-3.3-70B-Instruct:groq"
+MODEL_NAME = "openai/gpt-oss-120b"
 
 client = InferenceClient(
     api_key=os.getenv("HF_TOKEN")
