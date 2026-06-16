@@ -19,7 +19,7 @@ function ChatHeader({
 
           <div>
             <h1 className="font-bold text-xl">
-              FOOTBALL AI
+              Generative AI Research Lab
             </h1>
 
             <p className="text-red-500 text-sm">
