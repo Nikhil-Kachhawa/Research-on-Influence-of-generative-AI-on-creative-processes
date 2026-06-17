@@ -8,6 +8,7 @@ from chatbot.prompts import (
 )
 
 from .models import (
+    Participant,
     ChatSession,
     ChatMessage,
     ExperimentCondition
@@ -17,6 +18,38 @@ from .models import (
 def health(request):
     return Response({
         "status": "working"
+    })
+
+@api_view(["POST"])
+def start_experiment(request):
+
+    idea_count = Participant.objects.filter(
+        assigned_condition__name="idea-generator"
+    ).count()
+
+    critical_count = Participant.objects.filter(
+        assigned_condition__name="critical-evaluator"
+    ).count()
+
+    if idea_count <= critical_count:
+        condition_name = "idea-generator"
+    else:
+        condition_name = "critical-evaluator"
+
+    condition = ExperimentCondition.objects.get(
+        name=condition_name
+    )
+
+    participant = Participant.objects.create(
+        assigned_condition=condition
+    )
+
+    return Response({
+        "participant_id":
+            str(participant.participant_id),
+
+        "condition":
+            condition_name
     })
 
 @api_view(["GET"])

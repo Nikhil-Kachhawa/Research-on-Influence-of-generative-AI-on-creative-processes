@@ -1,11 +1,28 @@
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+// import { Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import universityLogo from "../assets/uk.svg";
+import api from "../services/api";
 
 function HomePage({ darkMode, setDarkMode }) {
+  const navigate = useNavigate();
   useEffect(() => {
     document.title = "Generative AI Research Lab";
   }, []);
+
+  const startExperiment = async () => {
+    try {
+      const res = await api.post("start-experiment/");
+
+      localStorage.setItem("participant_id", res.data.participant_id);
+
+      localStorage.setItem("condition", res.data.condition);
+
+      navigate("/survey/pre");
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <div
@@ -85,10 +102,10 @@ function HomePage({ darkMode, setDarkMode }) {
         </p>
       </section>
 
-      {/* Cards */}
+      {/* Old Cards 
       <section className="max-w-6xl mx-auto px-4 md:px-6 pb-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-          {/* Idea Generator */}
+          
           <Link
             to="/idea-generator"
             className={`group rounded-3xl p-6 md:p-8 lg:p-10 border transition-all duration-300 shadow-xl hover:-translate-y-2 hover:border-red-500 ${
@@ -117,7 +134,7 @@ function HomePage({ darkMode, setDarkMode }) {
             </span>
           </Link>
 
-          {/* Critical Evaluator */}
+          
           <Link
             to="/critical-evaluator"
             className={`group rounded-3xl p-6 md:p-8 lg:p-10 border transition-all duration-300 shadow-xl hover:-translate-y-2 hover:border-red-500 ${
@@ -145,6 +162,39 @@ function HomePage({ darkMode, setDarkMode }) {
               Start Evaluating →
             </span>
           </Link>
+        </div>
+      </section> */}
+
+      <section className="max-w-6xl mx-auto px-4 md:px-6 pb-16">
+        <div
+          className={`rounded-3xl border p-10 text-center shadow-xl ${
+            darkMode
+              ? "bg-[#141B34] border-gray-800"
+              : "bg-white border-red-200"
+          }`}
+        >
+          <h3 className="text-3xl font-bold mb-6">Start Research Experiment</h3>
+
+          <p className={`mb-8 ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+            You will complete a short survey, interact with an AI assistant, and
+            complete a final survey.
+          </p>
+
+          <button
+            onClick={startExperiment}
+            className="
+        bg-red-600
+        hover:bg-red-700
+        text-white
+        px-8
+        py-4
+        rounded-xl
+        font-semibold
+        transition
+      "
+          >
+            Start Experiment
+          </button>
         </div>
       </section>
     </div>

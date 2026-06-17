@@ -1,5 +1,6 @@
 import { getSessionId } from "../utils/session";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import api, { getChatHistory } from "../services/api";
 
 import ChatHeader from "../components/ChatHeader";
@@ -10,6 +11,8 @@ function ChatPage({ role, darkMode, setDarkMode }) {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.title =
@@ -120,6 +123,23 @@ function ChatPage({ role, darkMode, setDarkMode }) {
             loading={loading}
             darkMode={darkMode}
           />
+
+          <div className="flex justify-center py-4">
+            <button
+              onClick={() => navigate("/survey/post")}
+              className="
+                  bg-green-600
+                  hover:bg-green-700
+                  text-white
+                  px-6
+                  py-2
+                  rounded-lg
+                  font-semibold
+    "
+            >
+              Finish Experiment
+            </button>
+          </div>
         </div>
       </main>
     </div>

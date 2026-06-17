@@ -3,6 +3,9 @@ import { useState } from "react";
 
 import HomePage from "./pages/HomePage";
 import ChatPage from "./pages/ChatPage";
+import PreSurveyPage from "./pages/PreSurveyPage";
+import PostSurveyPage from "./pages/PostSurveyPage";
+import ThankYouPage from "./pages/ThankYouPage";
 
 function App() {
   const [darkMode, setDarkMode] = useState(true);
@@ -10,6 +13,11 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/survey/pre" element={<PreSurveyPage />} />
+
+        <Route path="/survey/post" element={<PostSurveyPage />} />
+
+        <Route path="/thank-you" element={<ThankYouPage />} />
 
         <Route
           path="/"
@@ -42,7 +50,6 @@ function App() {
             />
           }
         />
-
       </Routes>
     </BrowserRouter>
   );
