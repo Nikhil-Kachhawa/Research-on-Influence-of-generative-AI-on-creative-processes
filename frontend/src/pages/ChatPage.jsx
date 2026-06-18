@@ -66,8 +66,12 @@ function ChatPage({ role, darkMode, setDarkMode }) {
       setLoading(true);
 
       const res = await api.post("chat/", {
+        participant_id: localStorage.getItem("participant_id"),
+
         session_id: getSessionId(role),
+
         role,
+
         message: userMessage,
       });
 
@@ -91,6 +95,11 @@ function ChatPage({ role, darkMode, setDarkMode }) {
     } finally {
       setLoading(false);
     }
+  };
+  const finishExperiment = () => {
+    const participantId = localStorage.getItem("participant_id");
+
+    window.location.href = `https://sosci.rlp.net/nikhil/?pid=${participantId}`;
   };
 
   return (
@@ -126,15 +135,15 @@ function ChatPage({ role, darkMode, setDarkMode }) {
 
           <div className="flex justify-center py-4">
             <button
-              onClick={() => navigate("/survey/post")}
+              onClick={finishExperiment}
               className="
-                  bg-green-600
-                  hover:bg-green-700
-                  text-white
-                  px-6
-                  py-2
-                  rounded-lg
-                  font-semibold
+      bg-green-600
+      hover:bg-green-700
+      text-white
+      px-6
+      py-2
+      rounded-lg
+      font-semibold
     "
             >
               Finish Experiment

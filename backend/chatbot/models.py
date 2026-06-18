@@ -18,7 +18,16 @@ class Participant(models.Model):
 
     assigned_condition = models.ForeignKey(
         ExperimentCondition,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name="participants"
+    )
+
+    pre_survey_completed = models.BooleanField(
+        default=False
+    )
+
+    post_survey_completed = models.BooleanField(
+        default=False
     )
 
     started_at = models.DateTimeField(
@@ -54,10 +63,16 @@ class ChatSession(models.Model):
         on_delete=models.CASCADE
     )
 
+    total_messages = models.IntegerField(
+        default=0
+    )
+
     created_at = models.DateTimeField(
         auto_now_add=True
     )
 
+    def __str__(self):
+        return str(self.session_id)
 
 class ChatMessage(models.Model):
     session = models.ForeignKey(

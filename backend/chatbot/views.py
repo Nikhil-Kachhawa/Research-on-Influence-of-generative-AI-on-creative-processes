@@ -1,5 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from django.utils import timezone
 
 from chatbot.services.llm import generate_response
 from chatbot.prompts import (
@@ -52,6 +53,51 @@ def start_experiment(request):
             condition_name
     })
 
+@api_view(["POST"])
+def complete_survey(request):
+
+    participant_id = request.data.get(
+        "participant_id"
+    )
+
+    survey_type = request.data.get(
+        "survey_type"
+    )
+
+    try:
+
+        participant = Participant.objects.get(
+            participant_id=participant_id
+        )
+
+    except Participant.DoesNotExist:
+
+        return Response(
+            {
+                "error":
+                "Participant not found"
+            },
+            status=404
+        )
+
+    if survey_type == "pre":
+
+        participant.pre_survey_completed = True
+
+    elif survey_type == "post":
+
+        participant.post_survey_completed = True
+
+        participant.finished_at = (
+            timezone.now()
+        )
+
+    participant.save()
+
+    return Response({
+        "success": True
+    })
+
 @api_view(["GET"])
 def chat_history(request, session_id):
 
@@ -83,12 +129,32 @@ def chat_history(request, session_id):
         "messages": data
     })
 
+
+
 @api_view(["POST"])
 def chat(request):
 
     role = request.data.get("role")
     user_message = request.data.get("message")
     session_id = request.data.get("session_id")
+
+    participant_id = request.data.get(
+        "participant_id"
+    )
+
+    participant = Participant.objects.get(
+        participant_id=participant_id
+    )
+
+    if not participant.pre_survey_completed:
+
+        return Response(
+        {
+            "error":
+            "Complete survey first"
+        },
+        status=403
+    )
 
     if role == "idea-generator":
 
@@ -119,7 +185,8 @@ def chat(request):
     session, _ = ChatSession.objects.get_or_create(
         session_id=session_id,
         defaults={
-            "condition": condition
+            "condition": condition,
+            "participant": participant
         }
     )
 
@@ -133,3 +200,61 @@ def chat(request):
     return Response({
         "response": ai_response
     })
+
+@api_view(["GET"])
+def experiment_stats(request):
+
+    return Response({
+
+        "participants":
+            Participant.objects.count(),
+
+        "idea_generator":
+            Participant.objects.filter(
+                assigned_condition__name=
+                "idea-generator"
+            ).count(),
+
+        "critical_evaluator":
+            Participant.objects.filter(
+                assigned_condition__name=
+                "critical-evaluator"
+            ).count(),
+
+        "completed":
+            Participant.objects.filter(
+                post_survey_completed=True
+            ).count()
+    })
+
+@api_view(["GET"])
+def experiment_export(request):
+
+    participants = Participant.objects.all()
+
+    data = []
+
+    for p in participants:
+
+        data.append({
+
+            "participant_id":
+                str(p.participant_id),
+
+            "condition":
+                p.assigned_condition.name,
+
+            "pre_completed":
+                p.pre_survey_completed,
+
+            "post_completed":
+                p.post_survey_completed,
+
+            "started_at":
+                p.started_at,
+
+            "finished_at":
+                p.finished_at
+        })
+
+    return Response(data)

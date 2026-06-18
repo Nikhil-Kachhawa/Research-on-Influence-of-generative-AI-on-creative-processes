@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-// import { Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import universityLogo from "../assets/uk.svg";
 import api from "../services/api";
@@ -18,7 +17,9 @@ function HomePage({ darkMode, setDarkMode }) {
 
       localStorage.setItem("condition", res.data.condition);
 
-      navigate("/survey/pre");
+      const participantId = res.data.participant_id;
+
+      window.location.href = `https://sosci.rlp.net/nikhil/?r=${res.data.participant_id}`;
     } catch (error) {
       console.error(error);
     }
@@ -62,15 +63,6 @@ function HomePage({ darkMode, setDarkMode }) {
             </div>
           </div>
 
-          {/* <span
-            className={`px-4 py-2 rounded-full text-sm font-medium ${
-              darkMode
-                ? "bg-[#141B34] text-red-400 border border-red-500/20"
-                : "bg-red-50 text-red-600 border border-red-200"
-            }`}
-          >
-            Research Internship Project
-          </span> */}
           <button
             onClick={() => setDarkMode(!darkMode)}
             className={`px-4 py-2 rounded-full border transition ${
@@ -101,69 +93,6 @@ function HomePage({ darkMode, setDarkMode }) {
           and critical thinking during thesis topic generation and evaluation.
         </p>
       </section>
-
-      {/* Old Cards 
-      <section className="max-w-6xl mx-auto px-4 md:px-6 pb-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-          
-          <Link
-            to="/idea-generator"
-            className={`group rounded-3xl p-6 md:p-8 lg:p-10 border transition-all duration-300 shadow-xl hover:-translate-y-2 hover:border-red-500 ${
-              darkMode
-                ? "bg-[#141B34] border-gray-800"
-                : "bg-white border-red-200"
-            }`}
-          >
-            <div className="text-5xl md:text-6xl mb-6">💡</div>
-
-            <h3 className="text-2xl md:text-3xl font-bold mb-4">
-              Idea Generator
-            </h3>
-
-            <p
-              className={`leading-relaxed mb-8 ${
-                darkMode ? "text-gray-300" : "text-gray-700"
-              }`}
-            >
-              Generate innovative and creative thesis topics across different
-              domains using AI-assisted brainstorming and ideation support.
-            </p>
-
-            <span className="font-semibold text-red-500 group-hover:text-red-400">
-              Start Exploring →
-            </span>
-          </Link>
-
-          
-          <Link
-            to="/critical-evaluator"
-            className={`group rounded-3xl p-6 md:p-8 lg:p-10 border transition-all duration-300 shadow-xl hover:-translate-y-2 hover:border-red-500 ${
-              darkMode
-                ? "bg-[#141B34] border-gray-800"
-                : "bg-white border-red-200"
-            }`}
-          >
-            <div className="text-5xl md:text-6xl mb-6">🔍</div>
-
-            <h3 className="text-2xl md:text-3xl font-bold mb-4">
-              Critical Evaluator
-            </h3>
-
-            <p
-              className={`leading-relaxed mb-8 ${
-                darkMode ? "text-gray-300" : "text-gray-700"
-              }`}
-            >
-              Analyze research ideas, identify weaknesses, assess feasibility,
-              and improve overall quality through structured critique.
-            </p>
-
-            <span className="font-semibold text-red-500 group-hover:text-red-400">
-              Start Evaluating →
-            </span>
-          </Link>
-        </div>
-      </section> */}
 
       <section className="max-w-6xl mx-auto px-4 md:px-6 pb-16">
         <div

@@ -1,11 +1,23 @@
 from django.contrib import admin
 
 from .models import (
+    Participant,
     ExperimentCondition,
     ChatSession,
     ChatMessage
 )
 
+@admin.register(Participant)
+class ParticipantAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "participant_id",
+        "assigned_condition",
+        "pre_survey_completed",
+        "post_survey_completed",
+        "started_at",
+        "finished_at"
+    )
 
 @admin.register(ExperimentCondition)
 class ExperimentConditionAdmin(admin.ModelAdmin):
@@ -26,6 +38,7 @@ class ChatSessionAdmin(admin.ModelAdmin):
         "session_id",
         "condition",
         "created_at",
+        "participant",
     )
 
     list_filter = (

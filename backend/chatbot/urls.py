@@ -4,7 +4,9 @@ from .views import (
     health,
     chat,
     chat_history,
-    start_experiment
+    start_experiment,
+    complete_survey,
+    experiment_export
 )
 
 urlpatterns = [
@@ -12,4 +14,6 @@ urlpatterns = [
     path("chat/", chat),
     path("chat-history/<uuid:session_id>/", chat_history),
     path("start-experiment/", start_experiment),
+    path("complete-survey/", complete_survey),
+    path("experiment-export/",experiment_export),
 ]
