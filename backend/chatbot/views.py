@@ -1,6 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.utils import timezone
+import time
 
 from chatbot.services.llm import generate_response
 from chatbot.prompts import (
@@ -133,6 +134,8 @@ def chat_history(request, session_id):
 
 @api_view(["POST"])
 def chat(request):
+    
+    start_time = time.time()
 
     role = request.data.get("role")
     user_message = request.data.get("message")
@@ -177,29 +180,36 @@ def chat(request):
         """
 
     ai_response = generate_response(final_prompt)
+    response_time_ms = int(
+        (time.time() - start_time) * 1000
+    )
 
     condition, _ = ExperimentCondition.objects.get_or_create(
         name=role
     )
 
-    session, _ = ChatSession.objects.get_or_create(
-        session_id=session_id,
-        defaults={
-            "condition": condition,
-            "participant": participant
-        }
+    session, created = ChatSession.objects.get_or_create(
+    session_id=session_id,
+    defaults={
+        "condition": condition,
+        "participant": participant
+    }
     )
 
     ChatMessage.objects.create(
         session=session,
         role=role,
         user_message=user_message,
-        ai_response=ai_response
+        ai_response=ai_response,
+        response_time_ms=response_time_ms
     )
+    session.total_messages += 1
+    session.save()
 
     return Response({
         "response": ai_response
     })
+
 
 @api_view(["GET"])
 def experiment_stats(request):
@@ -225,7 +235,9 @@ def experiment_stats(request):
             Participant.objects.filter(
                 post_survey_completed=True
             ).count()
+
     })
+
 
 @api_view(["GET"])
 def experiment_export(request):
@@ -244,6 +256,9 @@ def experiment_export(request):
             "condition":
                 p.assigned_condition.name,
 
+            "total_messages":
+                ChatMessage.objects.filter(session__participant=p).count(),   
+
             "pre_completed":
                 p.pre_survey_completed,
 
@@ -254,7 +269,71 @@ def experiment_export(request):
                 p.started_at,
 
             "finished_at":
-                p.finished_at
+                p.finished_at,
+
+            "session_duration_seconds": 
+                p.session_duration_seconds,
+            
+            "session_duration_minutes": 
+                p.session_duration_minutes,    
+        })
+
+    return Response(data)
+
+@api_view(["GET"])
+def chat_export(request):
+
+    data = []
+
+    messages = ChatMessage.objects.select_related(
+        "session",
+        "session__participant",
+        "session__condition"
+    )
+
+    for index, msg in enumerate(messages, start=1):
+
+        data.append({
+
+            "participant_id":
+                str(
+                    msg.session.participant.participant_id
+                ),
+
+            "condition":
+                msg.session.condition.name,
+
+            "user_message":
+                msg.user_message,
+
+            "ai_response":
+                msg.ai_response,
+
+            "response_time_ms":
+                msg.response_time_ms,
+
+            "created_at":
+                msg.created_at,
+
+            "session_id":
+                str(msg.session.session_id),
+
+            "message_number": index,
+
+            "total_messages":
+                msg.session.total_messages,    
+
+            "session_duration_seconds":
+                msg.session.participant.session_duration_seconds,
+
+            "session_duration_minutes":
+                msg.session.participant.session_duration_minutes,
+
+            "pre_completed":
+                msg.session.participant.pre_survey_completed,
+
+            "post_completed":
+                msg.session.participant.post_survey_completed,    
         })
 
     return Response(data)

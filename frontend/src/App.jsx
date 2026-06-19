@@ -5,6 +5,7 @@ import HomePage from "./pages/HomePage";
 import ChatPage from "./pages/ChatPage";
 import ThankYouPage from "./pages/ThankYouPage";
 import ExperimentStartPage from "./pages/ExperimentStartPage";
+import PostSurveyCompletePage from "./pages/PostSurveyCompletePage";
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -12,12 +13,16 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-
         <Route path="/thank-you" element={<ThankYouPage />} />
+
+        <Route path="/post-survey-complete" element={<PostSurveyCompletePage />} />
 
         <Route path="/experiment" element={<ExperimentStartPage />} />
 
-        <Route path="/" element={<HomePage darkMode={darkMode} setDarkMode={setDarkMode} />} />
+        <Route
+          path="/"
+          element={<HomePage darkMode={darkMode} setDarkMode={setDarkMode} />}
+        />
 
         <Route
           path="/idea-generator"

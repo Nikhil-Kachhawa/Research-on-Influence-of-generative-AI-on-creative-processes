@@ -42,6 +42,25 @@ class Participant(models.Model):
     def __str__(self):
         return str(self.participant_id)
 
+    @property
+    def session_duration_seconds(self):
+        if not self.finished_at:
+            return None
+
+        return int(
+            (self.finished_at - self.started_at).total_seconds()
+        )
+
+    @property
+    def session_duration_minutes(self):
+        if self.session_duration_seconds is None:
+            return None
+
+        return round(
+            self.session_duration_seconds / 60,
+            2
+        )
+
 class ChatSession(models.Model):
 
     participant = models.ForeignKey(
@@ -91,6 +110,10 @@ class ChatMessage(models.Model):
 
     created_at = models.DateTimeField(
         auto_now_add=True
+    )
+
+    response_time_ms = models.IntegerField(
+        default=0
     )
 
     def __str__(self):

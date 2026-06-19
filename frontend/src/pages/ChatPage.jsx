@@ -99,7 +99,7 @@ function ChatPage({ role, darkMode, setDarkMode }) {
   const finishExperiment = () => {
     const participantId = localStorage.getItem("participant_id");
 
-    window.location.href = `https://sosci.rlp.net/nikhil/?pid=${participantId}`;
+    window.location.href = `https://sosci.rlp.net/nikhil/?q=qnr2&r=${participantId}`;
   };
 
   return (
