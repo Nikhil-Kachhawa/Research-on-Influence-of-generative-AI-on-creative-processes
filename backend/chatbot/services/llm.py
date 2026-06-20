@@ -15,18 +15,13 @@ client = InferenceClient(
     api_key=os.getenv("HF_TOKEN")
 )
 
-
-def generate_response(prompt: str):
+def generate_response(messages):
 
     try:
+
         completion = client.chat.completions.create(
             model=MODEL_NAME,
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt,
-                }
-            ],
+            messages=messages,
             temperature=0.7,
             top_p=0.9,
             max_tokens=1200,
@@ -40,7 +35,10 @@ def generate_response(prompt: str):
         )
 
     except Exception:
-        logger.exception("LLM generation failed")
+
+        logger.exception(
+            "LLM generation failed"
+        )
 
         return (
             "Sorry, an error occurred while generating a response."

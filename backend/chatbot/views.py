@@ -134,66 +134,104 @@ def chat_history(request, session_id):
 
 @api_view(["POST"])
 def chat(request):
-    
+
     start_time = time.time()
 
     role = request.data.get("role")
     user_message = request.data.get("message")
     session_id = request.data.get("session_id")
+    participant_id = request.data.get("participant_id")
 
-    participant_id = request.data.get(
-        "participant_id"
-    )
-
-    participant = Participant.objects.get(
-        participant_id=participant_id
-    )
+    try:
+        participant = Participant.objects.get(
+            participant_id=participant_id
+        )
+    except Participant.DoesNotExist:
+        return Response(
+            {
+                "error": "Participant not found"
+            },
+            status=404
+        )
 
     if not participant.pre_survey_completed:
-
         return Response(
-        {
-            "error":
-            "Complete survey first"
-        },
-        status=403
-    )
-
-    if role == "idea-generator":
-
-        final_prompt = f"""
-        {IDEA_GENERATOR_PROMPT}
-
-        User Request:
-
-        {user_message}
-        """
-
-    else:
-
-        final_prompt = f"""
-        {CRITICAL_EVALUATOR_PROMPT}
-
-        User Thesis Idea:
-
-        {user_message}
-        """
-
-    ai_response = generate_response(final_prompt)
-    response_time_ms = int(
-        (time.time() - start_time) * 1000
-    )
+            {
+                "error": "Complete survey first"
+            },
+            status=403
+        )
 
     condition, _ = ExperimentCondition.objects.get_or_create(
         name=role
     )
 
-    session, created = ChatSession.objects.get_or_create(
-    session_id=session_id,
-    defaults={
-        "condition": condition,
-        "participant": participant
-    }
+    session, _ = ChatSession.objects.get_or_create(
+        session_id=session_id,
+        defaults={
+            "condition": condition,
+            "participant": participant
+        }
+    )
+
+    # Get last 20 messages for memory
+    previous_messages = (
+        ChatMessage.objects
+        .filter(session=session)
+        .order_by("created_at")[:20]
+    )
+
+    messages = []
+
+    if role == "idea-generator":
+
+        messages.append(
+            {
+                "role": "system",
+                "content": IDEA_GENERATOR_PROMPT
+            }
+        )
+
+    else:
+
+        messages.append(
+            {
+                "role": "system",
+                "content": CRITICAL_EVALUATOR_PROMPT
+            }
+        )
+
+    # Add conversation history
+    for msg in previous_messages:
+
+        messages.append(
+            {
+                "role": "user",
+                "content": msg.user_message
+            }
+        )
+
+        messages.append(
+            {
+                "role": "assistant",
+                "content": msg.ai_response
+            }
+        )
+
+    # Add current user message
+    messages.append(
+        {
+            "role": "user",
+            "content": user_message
+        }
+    )
+
+    ai_response = generate_response(
+        messages
+    )
+
+    response_time_ms = int(
+        (time.time() - start_time) * 1000
     )
 
     ChatMessage.objects.create(
@@ -203,6 +241,7 @@ def chat(request):
         ai_response=ai_response,
         response_time_ms=response_time_ms
     )
+
     session.total_messages += 1
     session.save()
 
