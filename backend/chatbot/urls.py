@@ -8,7 +8,8 @@ from .views import (
     complete_survey,
     experiment_export,
     experiment_stats,
-    chat_export
+    chat_export,
+    dashboard_data,
 )
 
 urlpatterns = [
@@ -20,4 +21,5 @@ urlpatterns = [
     path("experiment-export/", experiment_export),
     path("experiment-stats/", experiment_stats),
     path("chat-export/", chat_export),
+    path("dashboard-data/", dashboard_data),
 ]

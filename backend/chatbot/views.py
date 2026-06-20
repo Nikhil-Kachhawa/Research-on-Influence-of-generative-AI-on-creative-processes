@@ -8,7 +8,7 @@ from chatbot.prompts import (
     IDEA_GENERATOR_PROMPT,
     CRITICAL_EVALUATOR_PROMPT
 )
-
+from django.db.models import Avg
 from .models import (
     Participant,
     ChatSession,
@@ -337,3 +337,49 @@ def chat_export(request):
         })
 
     return Response(data)
+
+@api_view(["GET"])
+def dashboard_data(request):
+
+    participants = Participant.objects.count()
+
+    completed = Participant.objects.filter(
+        post_survey_completed=True
+    ).count()
+
+    idea_generator = Participant.objects.filter(
+        assigned_condition__name="idea-generator"
+    ).count()
+
+    critical_evaluator = Participant.objects.filter(
+        assigned_condition__name="critical-evaluator"
+    ).count()
+
+    completed_participants = Participant.objects.filter(
+        finished_at__isnull=False
+    )
+
+    durations = [
+        p.session_duration_minutes
+        for p in completed_participants
+        if p.session_duration_minutes is not None
+    ]
+
+    avg_duration = (
+        round(sum(durations) / len(durations), 2)
+        if durations
+        else 0
+    )
+
+    avg_messages = ChatSession.objects.aggregate(
+        Avg("total_messages")
+    )["total_messages__avg"] or 0
+
+    return Response({
+        "participants": participants,
+        "completed": completed,
+        "idea_generator": idea_generator,
+        "critical_evaluator": critical_evaluator,
+        "avg_duration": avg_duration,
+        "avg_messages": round(avg_messages, 2),
+    })
