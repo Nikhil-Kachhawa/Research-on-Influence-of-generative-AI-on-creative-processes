@@ -15,7 +15,10 @@ class ChatSession(models.Model):
         unique=True,
         editable=False
     )
-
+    title = models.CharField(
+        max_length=255,
+        blank=True
+    )
     condition = models.ForeignKey(
         ExperimentCondition,
         on_delete=models.CASCADE
