@@ -175,31 +175,31 @@ def chat(request):
     )
 
     # Get last 20 messages for memory
+    # previous_messages = (
+    #     ChatMessage.objects
+    #     .filter(session=session)
+    #     .order_by("created_at")[:20]
+    # )
+
+    # Get all messages for memory
     previous_messages = (
         ChatMessage.objects
         .filter(session=session)
-        .order_by("created_at")[:20]
+        .order_by("created_at")
     )
 
-    messages = []
+    system_prompt = (
+        IDEA_GENERATOR_PROMPT
+        if role == "idea-generator"
+        else CRITICAL_EVALUATOR_PROMPT
+    )
 
-    if role == "idea-generator":
-
-        messages.append(
-            {
-                "role": "system",
-                "content": IDEA_GENERATOR_PROMPT
-            }
-        )
-
-    else:
-
-        messages.append(
-            {
-                "role": "system",
-                "content": CRITICAL_EVALUATOR_PROMPT
-            }
-        )
+    messages = [
+        {
+            "role": "system",
+            "content": system_prompt
+        }
+    ]
 
     # Add conversation history
     for msg in previous_messages:
