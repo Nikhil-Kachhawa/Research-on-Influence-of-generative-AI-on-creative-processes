@@ -9,6 +9,7 @@ venv/
 
 # Environment Variables
 .env
+*.csv
 
 # Django
 db.sqlite3

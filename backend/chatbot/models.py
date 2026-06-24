@@ -8,20 +8,82 @@ class ExperimentCondition(models.Model):
     def __str__(self):
         return self.name
 
+class Participant(models.Model):
+
+    participant_id = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False
+    )
+
+    assigned_condition = models.ForeignKey(
+        ExperimentCondition,
+        on_delete=models.CASCADE,
+        related_name="participants"
+    )
+
+    pre_survey_completed = models.BooleanField(
+        default=False
+    )
+
+    post_survey_completed = models.BooleanField(
+        default=False
+    )
+
+    started_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    finished_at = models.DateTimeField(
+        null=True,
+        blank=True
+    )
+
+    def __str__(self):
+        return str(self.participant_id)
+
+    @property
+    def session_duration_seconds(self):
+        if not self.finished_at:
+            return None
+
+        return int(
+            (self.finished_at - self.started_at).total_seconds()
+        )
+
+    @property
+    def session_duration_minutes(self):
+        if self.session_duration_seconds is None:
+            return None
+
+        return round(
+            self.session_duration_seconds / 60,
+            2
+        )
 
 class ChatSession(models.Model):
+
+    participant = models.ForeignKey(
+        Participant,
+        on_delete=models.CASCADE,
+        related_name="sessions",
+        null=True,
+        blank=True
+    )
+
     session_id = models.UUIDField(
         default=uuid.uuid4,
         unique=True,
         editable=False
     )
-    title = models.CharField(
-        max_length=255,
-        blank=True
-    )
+
     condition = models.ForeignKey(
         ExperimentCondition,
         on_delete=models.CASCADE
+    )
+
+    total_messages = models.IntegerField(
+        default=0
     )
 
     created_at = models.DateTimeField(
@@ -30,7 +92,6 @@ class ChatSession(models.Model):
 
     def __str__(self):
         return str(self.session_id)
-
 
 class ChatMessage(models.Model):
     session = models.ForeignKey(
@@ -51,5 +112,11 @@ class ChatMessage(models.Model):
         auto_now_add=True
     )
 
+    response_time_ms = models.IntegerField(
+        default=0
+    )
+
     def __str__(self):
         return f"Message {self.id}"
+    
+   

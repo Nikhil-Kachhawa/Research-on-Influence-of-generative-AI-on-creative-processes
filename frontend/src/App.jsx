@@ -3,23 +3,32 @@ import { useState } from "react";
 
 import HomePage from "./pages/HomePage";
 import ChatPage from "./pages/ChatPage";
+import ThankYouPage from "./pages/ThankYouPage";
+import ExperimentStartPage from "./pages/ExperimentStartPage";
+import PostSurveyCompletePage from "./pages/PostSurveyCompletePage";
+import DashboardPage from "./pages/DashboardPage";
 
 function App() {
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
 
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/thank-you" element={<ThankYouPage />} />
+
+        <Route
+          path="/post-survey-complete"
+          element={<PostSurveyCompletePage />}
+        />
+
+        <Route path="/experiment" element={<ExperimentStartPage />} />
 
         <Route
           path="/"
-          element={
-            <HomePage
-              darkMode={darkMode}
-              setDarkMode={setDarkMode}
-            />
-          }
+          element={<HomePage darkMode={darkMode} setDarkMode={setDarkMode} />}
         />
+
+        <Route path="/dashboard" element={<DashboardPage />} />
 
         <Route
           path="/idea-generator"
@@ -42,7 +51,6 @@ function App() {
             />
           }
         />
-
       </Routes>
     </BrowserRouter>
   );

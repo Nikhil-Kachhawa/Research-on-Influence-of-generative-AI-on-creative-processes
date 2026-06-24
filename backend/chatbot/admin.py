@@ -1,11 +1,37 @@
 from django.contrib import admin
 
 from .models import (
+    Participant,
     ExperimentCondition,
     ChatSession,
     ChatMessage
 )
 
+@admin.register(Participant)
+class ParticipantAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "participant_id",
+        "assigned_condition",
+        "pre_survey_completed",
+        "post_survey_completed",
+        "started_at",
+        "finished_at",
+        "session_duration"
+    )
+    list_filter = (
+        "assigned_condition",
+        "pre_survey_completed",
+        "post_survey_completed",
+    )
+
+    def session_duration(self, obj):
+        if obj.session_duration_minutes is None:
+            return "-"
+
+        return f"{obj.session_duration_minutes} min"
+
+    session_duration.short_description = "Session Duration"
 
 @admin.register(ExperimentCondition)
 class ExperimentConditionAdmin(admin.ModelAdmin):
@@ -24,7 +50,9 @@ class ChatSessionAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "session_id",
+        "participant",
         "condition",
+        "total_messages",
         "created_at",
     )
 
