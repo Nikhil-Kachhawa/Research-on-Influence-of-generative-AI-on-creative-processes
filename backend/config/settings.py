@@ -137,3 +137,39 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 CORS_ALLOW_ALL_ORIGINS = True
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+
+    "formatters": {
+        "standard": {
+            "format": "[{asctime}] {levelname} {name}: {message}",
+            "style": "{",
+        },
+    },
+
+    "handlers": {
+        "file": {
+        "level": "INFO",
+        "class": "logging.handlers.RotatingFileHandler",
+        "filename": BASE_DIR / "logs" / "django.log",
+        "maxBytes": 10 * 1024 * 1024,  # 10 MB
+        "backupCount": 5,
+        "formatter": "standard",
+        },
+        "error_file": {
+        "level": "ERROR",
+        "class": "logging.handlers.RotatingFileHandler",
+        "filename": BASE_DIR / "logs" / "error.log",
+        "maxBytes": 10 * 1024 * 1024,  # 10 MB
+        "backupCount": 5,
+        "formatter": "standard",
+        },
+    },
+
+     "root": {
+        "handlers": ["file", "error_file"],
+        "level": "INFO",
+    },
+}

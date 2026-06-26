@@ -15,6 +15,9 @@ from .models import (
     ChatMessage,
     ExperimentCondition
 )
+import logging
+
+logger = logging.getLogger(__name__)
 
 @api_view(["GET"])
 def health(request):
@@ -121,6 +124,7 @@ def chat_history(request, session_id):
     for msg in messages:
 
         data.append({
+            "id": msg.id,
             "user_message": msg.user_message,
             "ai_response": msg.ai_response,
             "created_at": msg.created_at
@@ -129,6 +133,37 @@ def chat_history(request, session_id):
     return Response({
         "messages": data
     })
+
+@api_view(["POST"])
+def attentionPrediction(request):
+    try:
+        message = ChatMessage.objects.get(
+            id=request.data.get("response_id")
+        )
+        logger.info("Chat message accessed: %s", message.id)
+    except ChatMessage.DoesNotExist:
+        logger.error(
+            "Error accessing chatmessage: %s",
+            request.data.get("response_id")
+        )
+        return Response(
+            {
+                "error": "Participant not found"
+            },
+            status=404
+        )
+
+    word_count = len(message.ai_response.split())
+    avg_reading_speed = 200
+    message.actual_engagement = request.data.get("actual_engagement")
+    message.engagement_estimation = (word_count/avg_reading_speed) * 60
+    message.predicted_engagement = request.data.get("predicted_engagement")
+    message.predicted_reading_estimation = request.data.get("predicted_engagement")/message.engagement_estimation
+
+    message.save()
+    logger.info("chat message analytics updated: %s", message.id)
+    return Response({"success": True})
+
 
 
 
@@ -234,7 +269,7 @@ def chat(request):
         (time.time() - start_time) * 1000
     )
 
-    ChatMessage.objects.create(
+    dataSaved  =ChatMessage.objects.create(
         session=session,
         role=role,
         user_message=user_message,
@@ -246,7 +281,8 @@ def chat(request):
     session.save()
 
     return Response({
-        "response": ai_response
+        "response": ai_response,
+        "response_id": dataSaved.id
     })
 
 

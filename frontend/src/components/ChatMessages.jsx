@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 
+
 function ChatMessages({
   messages,
   loading,
@@ -17,6 +18,7 @@ function ChatMessages({
 
   return (
     <div
+      id="chatBox"
       className={`h-[65vh] overflow-y-auto p-6 md:p-8 ${
         darkMode
           ? "bg-[#141B34]"

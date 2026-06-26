@@ -108,6 +108,11 @@ class ChatMessage(models.Model):
 
     ai_response = models.TextField()
 
+    engagement_estimation = models.FloatField(default=0.0)
+    actual_engagement = models.FloatField(default=0.0)
+    predicted_engagement = models.FloatField(default=0.0)
+    predicted_reading_estimation = models.FloatField(default=0.0)
+
     created_at = models.DateTimeField(
         auto_now_add=True
     )

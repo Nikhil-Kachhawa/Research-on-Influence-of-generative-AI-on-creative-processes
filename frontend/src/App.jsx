@@ -6,7 +6,7 @@ import ChatPage from "./pages/ChatPage";
 import ThankYouPage from "./pages/ThankYouPage";
 import ExperimentStartPage from "./pages/ExperimentStartPage";
 import PostSurveyCompletePage from "./pages/PostSurveyCompletePage";
-import DashboardPage from "./pages/DashboardPage";
+import DashboardPage from "./pages/DashBoardPage";
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
