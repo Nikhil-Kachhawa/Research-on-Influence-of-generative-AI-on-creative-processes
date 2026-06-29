@@ -4,6 +4,7 @@ from django.utils import timezone
 import time
 
 from chatbot.services.llm import generate_response
+from chatbot.services.knowledge import get_context
 from chatbot.prompts import (
     IDEA_GENERATOR_PROMPT,
     CRITICAL_EVALUATOR_PROMPT
@@ -15,6 +16,9 @@ from .models import (
     ChatMessage,
     ExperimentCondition
 )
+import logging
+
+logger = logging.getLogger(__name__)
 
 @api_view(["GET"])
 def health(request):
@@ -121,6 +125,7 @@ def chat_history(request, session_id):
     for msg in messages:
 
         data.append({
+            "id": msg.id,
             "user_message": msg.user_message,
             "ai_response": msg.ai_response,
             "created_at": msg.created_at
@@ -129,6 +134,37 @@ def chat_history(request, session_id):
     return Response({
         "messages": data
     })
+
+@api_view(["POST"])
+def attentionPrediction(request):
+    try:
+        message = ChatMessage.objects.get(
+            id=request.data.get("response_id")
+        )
+        logger.info("Chat message accessed: %s", message.id)
+    except ChatMessage.DoesNotExist:
+        logger.error(
+            "Error accessing chatmessage: %s",
+            request.data.get("response_id")
+        )
+        return Response(
+            {
+                "error": "Participant not found"
+            },
+            status=404
+        )
+
+    word_count = len(message.ai_response.split())
+    avg_reading_speed = 200
+    message.actual_engagement = request.data.get("actual_engagement")
+    message.engagement_estimation = (word_count/avg_reading_speed) * 60
+    message.predicted_engagement = request.data.get("predicted_engagement")
+    message.predicted_reading_estimation = request.data.get("predicted_engagement")/message.engagement_estimation
+
+    message.save()
+    logger.info("chat message analytics updated: %s", message.id)
+    return Response({"success": True})
+
 
 
 
@@ -188,18 +224,42 @@ def chat(request):
         .order_by("created_at")
     )
 
-    system_prompt = (
-        IDEA_GENERATOR_PROMPT
-        if role == "idea-generator"
-        else CRITICAL_EVALUATOR_PROMPT
-    )
+    # Retrieve relevant university context for this query
+    context = get_context(user_message)
 
-    messages = [
-        {
-            "role": "system",
-            "content": system_prompt
-        }
-    ]
+    base_prompt = IDEA_GENERATOR_PROMPT if role == "idea-generator" else CRITICAL_EVALUATOR_PROMPT
+
+    if context:
+        system_content = (
+            f"{base_prompt}\n\n"
+            f"=== University of Koblenz — FB4 Research Context ===\n"
+            f"The following is real information about faculty, research projects, and thesis topics "
+            f"at the University of Koblenz Computer Science department. "
+            f"Use it to ground your suggestions in the department's actual research areas:\n\n"
+            f"{context}\n"
+            f"====================================================="
+        )
+    else:
+        system_content = base_prompt
+
+    messages = []
+    messages.append({
+        "role": "system",
+        "content": system_content
+    })
+
+    # system_prompt = (
+    #     IDEA_GENERATOR_PROMPT
+    #     if role == "idea-generator"
+    #     else CRITICAL_EVALUATOR_PROMPT
+    # )
+
+    # messages = [
+    #     {
+    #         "role": "system",
+    #         "content": system_prompt
+    #     }
+    # ]
 
     # Add conversation history
     for msg in previous_messages:
@@ -234,7 +294,7 @@ def chat(request):
         (time.time() - start_time) * 1000
     )
 
-    ChatMessage.objects.create(
+    dataSaved  =ChatMessage.objects.create(
         session=session,
         role=role,
         user_message=user_message,
@@ -246,7 +306,8 @@ def chat(request):
     session.save()
 
     return Response({
-        "response": ai_response
+        "response": ai_response,
+        "response_id": dataSaved.id
     })
 
 

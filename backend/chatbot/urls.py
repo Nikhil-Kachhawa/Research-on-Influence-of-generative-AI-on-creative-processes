@@ -10,6 +10,7 @@ from .views import (
     experiment_stats,
     chat_export,
     dashboard_data,
+    attentionPrediction
 )
 
 urlpatterns = [
@@ -22,4 +23,5 @@ urlpatterns = [
     path("experiment-stats/", experiment_stats),
     path("chat-export/", chat_export),
     path("dashboard-data/", dashboard_data),
+    path("attentionPrediction/", attentionPrediction)
 ]
