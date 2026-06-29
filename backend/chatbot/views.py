@@ -4,6 +4,7 @@ from django.utils import timezone
 import time
 
 from chatbot.services.llm import generate_response
+from chatbot.services.knowledge import get_context
 from chatbot.prompts import (
     IDEA_GENERATOR_PROMPT,
     CRITICAL_EVALUATOR_PROMPT
@@ -223,18 +224,42 @@ def chat(request):
         .order_by("created_at")
     )
 
-    system_prompt = (
-        IDEA_GENERATOR_PROMPT
-        if role == "idea-generator"
-        else CRITICAL_EVALUATOR_PROMPT
-    )
+    # Retrieve relevant university context for this query
+    context = get_context(user_message)
 
-    messages = [
-        {
-            "role": "system",
-            "content": system_prompt
-        }
-    ]
+    base_prompt = IDEA_GENERATOR_PROMPT if role == "idea-generator" else CRITICAL_EVALUATOR_PROMPT
+
+    if context:
+        system_content = (
+            f"{base_prompt}\n\n"
+            f"=== University of Koblenz — FB4 Research Context ===\n"
+            f"The following is real information about faculty, research projects, and thesis topics "
+            f"at the University of Koblenz Computer Science department. "
+            f"Use it to ground your suggestions in the department's actual research areas:\n\n"
+            f"{context}\n"
+            f"====================================================="
+        )
+    else:
+        system_content = base_prompt
+
+    messages = []
+    messages.append({
+        "role": "system",
+        "content": system_content
+    })
+
+    # system_prompt = (
+    #     IDEA_GENERATOR_PROMPT
+    #     if role == "idea-generator"
+    #     else CRITICAL_EVALUATOR_PROMPT
+    # )
+
+    # messages = [
+    #     {
+    #         "role": "system",
+    #         "content": system_prompt
+    #     }
+    # ]
 
     # Add conversation history
     for msg in previous_messages:
