@@ -83,7 +83,9 @@ def continue_experiment(request):
         )
 
     try:
-        participant = Participant.objects.get(participant_id=participant_id)
+        participant = Participant.objects.get(
+            participant_id=participant_id
+        )
 
     except Participant.DoesNotExist:
         return Response(
@@ -91,30 +93,59 @@ def continue_experiment(request):
             status=404,
         )
 
+    # -----------------------------
+    # Survey 1 -> Chat 2
+    # -----------------------------
     if participant.experiment_phase == "survey_1":
 
         participant.current_condition = participant.second_condition
         participant.experiment_phase = "chat_2"
         participant.save()
 
-        return Response(
-            {
-                "participant_number": f"{participant.participant_number:03d}",
-                "current_role": participant.current_condition.name,
-                "experiment_phase": participant.experiment_phase,
-            }
-        )
+        return Response({
+            "participant_number": f"{participant.participant_number:03d}",
+            "current_role": participant.current_condition.name,
+            "experiment_phase": participant.experiment_phase,
+        })
 
-    elif participant.experiment_phase == "survey_2":
+    # -----------------------------
+    # Already moved to Chat 2
+    # (duplicate request)
+    # -----------------------------
+    if participant.experiment_phase == "chat_2":
+
+        return Response({
+            "participant_number": f"{participant.participant_number:03d}",
+            "current_role": participant.current_condition.name,
+            "experiment_phase": participant.experiment_phase,
+        })
+
+    # -----------------------------
+    # Survey 2 -> Completed
+    # -----------------------------
+    if participant.experiment_phase == "survey_2":
 
         participant.experiment_phase = "completed"
         participant.finished_at = timezone.now()
         participant.save()
 
-        return Response({"status": "completed"})
+        return Response({
+            "status": "completed"
+        })
+
+    # -----------------------------
+    # Already completed
+    # -----------------------------
+    if participant.experiment_phase == "completed":
+
+        return Response({
+            "status": "completed"
+        })
 
     return Response(
-        {"error": "Invalid experiment state."},
+        {
+            "error": "Invalid experiment state."
+        },
         status=400,
     )
 
