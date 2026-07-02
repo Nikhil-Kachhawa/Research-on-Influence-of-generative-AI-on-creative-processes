@@ -26,6 +26,8 @@ function HomePage() {
 
       localStorage.setItem("participant_number", res.data.participant_number);
 
+      localStorage.setItem("session_id", res.data.session_id);
+
       if (res.data.current_role === "idea-generator") {
         navigate("/idea-generator");
       } else {

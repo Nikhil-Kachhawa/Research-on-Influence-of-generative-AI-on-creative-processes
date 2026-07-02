@@ -61,11 +61,17 @@ def start_experiment(request):
         experiment_phase="chat_1",
     )
 
+    session = ChatSession.objects.create(
+        participant=participant,
+        condition=participant.current_condition,
+    )
+
     return Response(
         {
             "participant_id": str(participant.participant_id),
             "participant_number": f"{participant.participant_number:03d}",
             "current_role": participant.current_condition.name,
+            "session_id": str(session.session_id),
             "experiment_phase": participant.experiment_phase,
         }
     )
@@ -83,9 +89,7 @@ def continue_experiment(request):
         )
 
     try:
-        participant = Participant.objects.get(
-            participant_id=participant_id
-        )
+        participant = Participant.objects.get(participant_id=participant_id)
 
     except Participant.DoesNotExist:
         return Response(
@@ -101,12 +105,18 @@ def continue_experiment(request):
         participant.current_condition = participant.second_condition
         participant.experiment_phase = "chat_2"
         participant.save()
-
-        return Response({
-            "participant_number": f"{participant.participant_number:03d}",
-            "current_role": participant.current_condition.name,
-            "experiment_phase": participant.experiment_phase,
-        })
+        session = ChatSession.objects.create(
+            participant=participant,
+            condition=participant.current_condition,
+        )
+        return Response(
+            {
+                "participant_number": f"{participant.participant_number:03d}",
+                "current_role": participant.current_condition.name,
+                "session_id": str(session.session_id),
+                "experiment_phase": participant.experiment_phase,
+            }
+        )
 
     # -----------------------------
     # Already moved to Chat 2
@@ -114,11 +124,13 @@ def continue_experiment(request):
     # -----------------------------
     if participant.experiment_phase == "chat_2":
 
-        return Response({
-            "participant_number": f"{participant.participant_number:03d}",
-            "current_role": participant.current_condition.name,
-            "experiment_phase": participant.experiment_phase,
-        })
+        return Response(
+            {
+                "participant_number": f"{participant.participant_number:03d}",
+                "current_role": participant.current_condition.name,
+                "experiment_phase": participant.experiment_phase,
+            }
+        )
 
     # -----------------------------
     # Survey 2 -> Completed
@@ -129,23 +141,17 @@ def continue_experiment(request):
         participant.finished_at = timezone.now()
         participant.save()
 
-        return Response({
-            "status": "completed"
-        })
+        return Response({"status": "completed"})
 
     # -----------------------------
     # Already completed
     # -----------------------------
     if participant.experiment_phase == "completed":
 
-        return Response({
-            "status": "completed"
-        })
+        return Response({"status": "completed"})
 
     return Response(
-        {
-            "error": "Invalid experiment state."
-        },
+        {"error": "Invalid experiment state."},
         status=400,
     )
 

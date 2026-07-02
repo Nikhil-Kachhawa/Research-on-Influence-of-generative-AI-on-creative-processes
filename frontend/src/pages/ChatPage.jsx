@@ -88,7 +88,7 @@ function ChatPage({ role }) {
   useEffect(() => {
     const loadHistory = async () => {
       try {
-        const data = await getChatHistory(getSessionId(role));
+        const data = await getChatHistory(getSessionId());
         if (data.messages.length > 0) {
           isFirstMessage.current = false;
           init(document.getElementById("chatBox"));
@@ -223,7 +223,7 @@ function ChatPage({ role }) {
       setLoading(true);
       const res = await api.post("chat/", {
         participant_id: localStorage.getItem("participant_id"),
-        session_id: getSessionId(role),
+        session_id: getSessionId(),
         message: userMessage,
       });
       responseID.current = res.data.response_id;
@@ -264,15 +264,17 @@ function ChatPage({ role }) {
       });
 
       const participantNumber = res.data.participant_number;
-      const currentRole = res.data.current_role;
 
       if (res.data.next_step === "survey_1") {
+        localStorage.removeItem("session_id");
         window.location.href = `${SURVEY.SURVEY_1}&r=${participantNumber}&role=${role}`;
       }
 
       if (res.data.next_step === "survey_2") {
+        localStorage.removeItem("session_id");
         window.location.href = `${SURVEY.SURVEY_2}&r=${participantNumber}&role=${role}`;
       }
+
     } catch (error) {
       console.error(error);
       alert("Unable to finish chat.");
