@@ -10,23 +10,33 @@ class ExperimentCondition(models.Model):
 
 class Participant(models.Model):
 
-    participant_id = models.UUIDField(
-        default=uuid.uuid4,
-        unique=True,
-        editable=False
+    participant_number = models.PositiveIntegerField(
+        unique=True
     )
 
-    assigned_condition = models.ForeignKey(
+    first_condition = models.ForeignKey(
         ExperimentCondition,
         on_delete=models.CASCADE,
-        related_name="participants"
+        related_name="first_condition_participants"
     )
 
-    pre_survey_completed = models.BooleanField(
+    second_condition = models.ForeignKey(
+        ExperimentCondition,
+        on_delete=models.CASCADE,
+        related_name="second_condition_participants"
+    )
+
+    current_condition = models.ForeignKey(
+        ExperimentCondition,
+        on_delete=models.CASCADE,
+        related_name="current_condition_participants"
+    )
+
+    first_chat_completed = models.BooleanField(
         default=False
     )
 
-    post_survey_completed = models.BooleanField(
+    second_chat_completed = models.BooleanField(
         default=False
     )
 
@@ -38,29 +48,7 @@ class Participant(models.Model):
         null=True,
         blank=True
     )
-
-    def __str__(self):
-        return str(self.participant_id)
-
-    @property
-    def session_duration_seconds(self):
-        if not self.finished_at:
-            return None
-
-        return int(
-            (self.finished_at - self.started_at).total_seconds()
-        )
-
-    @property
-    def session_duration_minutes(self):
-        if self.session_duration_seconds is None:
-            return None
-
-        return round(
-            self.session_duration_seconds / 60,
-            2
-        )
-
+    
 class ChatSession(models.Model):
 
     participant = models.ForeignKey(

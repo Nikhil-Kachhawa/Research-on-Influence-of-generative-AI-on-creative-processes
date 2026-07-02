@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import ReactMarkdown from "react-markdown";
-
 
 function ChatMessages({
   messages,
@@ -8,6 +8,8 @@ function ChatMessages({
   darkMode,
   role,
 }) {
+  const { t } = useTranslation();
+
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -20,25 +22,21 @@ function ChatMessages({
     <div
       id="chatBox"
       className={`h-[65vh] overflow-y-auto p-6 md:p-8 ${
-        darkMode
-          ? "bg-[#141B34]"
-          : "bg-white "
+        darkMode ? "bg-[#141B34]" : "bg-white"
       }`}
     >
       {messages.length === 0 ? (
-        <div className="flex items-center justify-center h-full ">
+        <div className="flex items-center justify-center h-full">
           <div className="text-center">
 
             <div className="text-6xl mb-4">
-              {role === "idea-generator"
-                ? "💡"
-                : "🔍"}
+              {role === "idea-generator" ? "💡" : "🔍"}
             </div>
 
             <h2 className="text-3xl font-bold mb-4">
               {role === "idea-generator"
-                ? "Idea Generator"
-                : "Critical Evaluator"}
+                ? t("chat.ideaGenerator")
+                : t("chat.criticalEvaluator")}
             </h2>
 
             <p
@@ -49,8 +47,8 @@ function ChatMessages({
               }
             >
               {role === "idea-generator"
-                ? "Generate innovative research topics."
-                : "Analyze and improve research ideas."}
+                ? t("chat.ideaDescription")
+                : t("chat.criticalDescription")}
             </p>
 
           </div>
@@ -80,7 +78,7 @@ function ChatMessages({
                   <ReactMarkdown
                     components={{
                       h1: ({ children }) => (
-                        <h1 className="text-3xl font-bold text-red-500 mb-4 ">
+                        <h1 className="text-3xl font-bold text-red-500 mb-4">
                           {children}
                         </h1>
                       ),
@@ -140,12 +138,13 @@ function ChatMessages({
                     : "bg-gray-100 border border-gray-300"
                 }`}
               >
-                🤖 Thinking...
+                {t("common.thinking")}
               </div>
             </div>
           )}
 
           <div ref={messagesEndRef} />
+
         </div>
       )}
     </div>

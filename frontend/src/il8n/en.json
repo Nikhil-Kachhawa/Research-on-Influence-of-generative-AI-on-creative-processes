@@ -1,0 +1,57 @@
+{
+  "common": {
+    "home": "Home",
+    "english": "English",
+    "german": "Deutsch",
+    "lightMode": "Light Mode",
+    "darkMode": "Dark Mode",
+    "send": "Send",
+    "thinking": "🤖 Thinking..."
+  },
+
+  "header": {
+    "title": "Generative AI Research Lab",
+    "subtitle": "University of Koblenz"
+  },
+
+  "homepage": {
+    "heroTitle1": "AI Support for",
+    "heroTitle2": "Creative Tasks",
+    "heroTitle3": "in Thesis Topic Development",
+
+    "heroDescription": "Explore how different AI roles influence creativity, brainstorming, and critical thinking during thesis topic generation and evaluation.",
+
+    "cardTitle": "Start Research Experiment",
+
+    "cardDescription": "You are participating in a research study on AI - assisted creative thinking. Please interact with the AI as naturally as possible. There are no correct or incorrect responses, your honest interaction is what matters most.",
+
+    "startButton": "Start Experiment"
+  },
+
+  "chat": {
+    "placeholder": "Enter your thesis idea...",
+
+    "ideaGenerator": "💡 Idea Generator",
+    "criticalEvaluator": "🔍 Critical Evaluator",
+
+    "ideaDescription": "Generate innovative research topics.",
+    "criticalDescription": "Analyze and improve research ideas."
+  },
+
+  "finish": {
+    "button": "Finish Chat",
+    "title": "Finish Chat",
+    "message": "Are you sure you want to finish this chat? You cannot continue after proceeding.",
+    "cancel": "Cancel",
+    "confirm": "Proceed to Survey"
+  },
+
+  "dashboard": {
+    "title": "Experiment Dashboard"
+  },
+
+  "thankYou": {
+    "title": "Thank You",
+    "message": "Thank you for participating in our research study."
+  }
+}

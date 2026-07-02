@@ -1,6 +1,6 @@
 import { getSessionId } from "../utils/session";
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import api, { getChatHistory } from "../services/api";
 
 import ChatHeader from "../components/ChatHeader";
@@ -9,7 +9,10 @@ import ChatInput from "../components/ChatInput";
 import webgazerModule from "webgazer";
 const webgazer = webgazerModule.default || webgazerModule;
 
-function ChatPage({ role, darkMode, setDarkMode }) {
+import { useTheme } from "../context/ThemeContext";
+
+function ChatPage({ role }) {
+  const { darkMode } = useTheme();
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -25,7 +28,7 @@ function ChatPage({ role, darkMode, setDarkMode }) {
   const lastHiddenTime = useRef(null);
   const totalAwayTime = useRef(0);
   const [showFinishModal, setShowFinishModal] = useState(false);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -259,7 +262,7 @@ function ChatPage({ role, darkMode, setDarkMode }) {
         darkMode ? "bg-[#0B1020] text-white" : "bg-white text-black"
       }`}
     >
-      <ChatHeader role={role} darkMode={darkMode} setDarkMode={setDarkMode} />
+      <ChatHeader role={role} />
 
       <main className="max-w-6xl mx-auto px-4 py-6">
         <div

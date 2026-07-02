@@ -1,0 +1,57 @@
+{
+  "common": {
+    "home": "Startseite",
+    "english": "English",
+    "german": "Deutsch",
+    "lightMode": "Heller Modus",
+    "darkMode": "Dunkler Modus",
+    "send": "Senden",
+    "thinking": "🤖 Denkt nach..."
+  },
+
+  "header": {
+    "title": "Generatives KI-Forschungslabor",
+    "subtitle": "Universität Koblenz"
+  },
+
+  "homepage": {
+    "heroTitle1": "KI-Unterstützung für",
+    "heroTitle2": "Kreative Aufgaben",
+    "heroTitle3": "bei der Entwicklung von Abschlussarbeitsthemen",
+
+    "heroDescription": "Untersuchen Sie, wie unterschiedliche KI-Rollen Kreativität, Brainstorming und kritisches Denken bei der Entwicklung und Bewertung von Abschlussarbeitsthemen beeinflussen.",
+
+    "cardTitle": "Forschungsexperiment starten",
+
+    "cardDescription": "Sie nehmen an einer Forschungsstudie zum KI-gestützten kreativen Denken teil. Bitte interagieren Sie so natürlich wie möglich mit der KI. Es gibt keine richtigen oder falschen Antworten. Ihre ehrliche und natürliche Interaktion ist für diese Studie am wichtigsten.",
+
+    "startButton": "Experiment starten"
+  },
+
+  "chat": {
+    "placeholder": "Geben Sie Ihre Idee für ein Abschlussarbeitsthema ein...",
+
+    "ideaGenerator": "💡 Ideengenerator",
+    "criticalEvaluator": "🔍 Kritischer Gutachter",
+
+    "ideaDescription": "Erstellen Sie innovative Forschungsthemen.",
+    "criticalDescription": "Analysieren und verbessern Sie Forschungsideen."
+  },
+
+  "finish": {
+    "button": "Chat beenden",
+    "title": "Chat beenden",
+    "message": "Möchten Sie diesen Chat wirklich beenden? Danach können Sie ihn nicht fortsetzen.",
+    "cancel": "Abbrechen",
+    "confirm": "Zur Umfrage"
+  },
+
+  "dashboard": {
+    "title": "Experiment-Dashboard"
+  },
+
+  "thankYou": {
+    "title": "Vielen Dank",
+    "message": "Vielen Dank für Ihre Teilnahme an unserer Forschungsstudie."
+  }
+}

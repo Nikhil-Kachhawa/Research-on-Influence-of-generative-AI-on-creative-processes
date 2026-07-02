@@ -1,13 +1,18 @@
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "../context/ThemeContext";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 import universityLogo from "../assets/uk.svg";
 import api from "../services/api";
 
-function HomePage({ darkMode, setDarkMode }) {
+function HomePage() {
   const navigate = useNavigate();
+  const { darkMode, toggleTheme } = useTheme();
+  const { t } = useTranslation();
   useEffect(() => {
-    document.title = "Generative AI Research Lab";
-  }, []);
+    document.title = t("header.title");
+  }, [t]);
 
   const startExperiment = async () => {
     try {
@@ -16,8 +21,6 @@ function HomePage({ darkMode, setDarkMode }) {
       localStorage.setItem("participant_id", res.data.participant_id);
 
       localStorage.setItem("condition", res.data.condition);
-
-      const participantId = res.data.participant_id;
 
       window.location.href = `https://sosci.rlp.net/nikhil/?r=${res.data.participant_id}`;
     } catch (error) {
@@ -39,9 +42,7 @@ function HomePage({ darkMode, setDarkMode }) {
               src={universityLogo}
               alt="UK Logo"
               className="h-12 md:h-16 w-auto cursor-pointer transition duration-300 hover:scale-105"
-              onClick={() => {
-                window.location.href = "/";
-              }}
+              onClick={() => navigate("/")}
             />
 
             <div>
@@ -50,7 +51,7 @@ function HomePage({ darkMode, setDarkMode }) {
                   darkMode ? "text-white" : "text-black"
                 }`}
               >
-                Generative AI Research Lab
+                {t("header.title")}
               </h1>
 
               <p
@@ -58,30 +59,36 @@ function HomePage({ darkMode, setDarkMode }) {
                   darkMode ? "text-red-500" : "text-red-600"
                 }`}
               >
-                University of Koblenz
+                {t("header.subtitle")}
               </p>
             </div>
           </div>
 
-          <button
-            onClick={() => setDarkMode(!darkMode)}
-            className={`px-4 py-2 rounded-full border transition ${
-              darkMode
-                ? "bg-[#141B34] border-gray-700 hover:border-red-500"
-                : "bg-white border-red-200 hover:border-red-500"
-            }`}
-          >
-            {darkMode ? "☀️" : "🌙"}
-          </button>
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher darkMode={darkMode} />
+
+            <button
+              onClick={toggleTheme}
+              className={`px-4 py-2 rounded-full border transition ${
+                darkMode
+                  ? "bg-[#141B34] border-gray-700 hover:border-red-500"
+                  : "bg-white border-red-200 hover:border-red-500"
+              }`}
+            >
+              {darkMode ? "🌞" : "🌙"}
+            </button>
+          </div>
         </div>
       </header>
-
       {/* Hero */}
-      <section className="max-w-6xl mx-auto px-4 md:px-6 pt-6 md: pb-12 text-center">
+      <section className="max-w-6xl mx-auto px-4 md:px-6 pt-6 pb-12 text-center">
         <h2 className="font-bold leading-tight mb-6 text-4xl sm:text-5xl lg:text-6xl">
-          AI Support for
-          <span className="text-red-600 block md:inline"> Creative Tasks </span>
-          in Thesis Topic Development
+          {t("homepage.heroTitle1")}
+          <span className="text-red-600 block md:inline">
+            {" "}
+            {t("homepage.heroTitle2")}{" "}
+          </span>
+          {t("homepage.heroTitle3")}
         </h2>
 
         <p
@@ -89,11 +96,11 @@ function HomePage({ darkMode, setDarkMode }) {
             darkMode ? "text-gray-300" : "text-gray-700"
           }`}
         >
-          Explore how different AI roles influence creativity, brainstorming,
-          and critical thinking during thesis topic generation and evaluation.
+          {t("homepage.heroDescription")}
         </p>
       </section>
 
+      {/* Experiment Card */}
       <section className="max-w-6xl mx-auto px-4 md:px-6 pb-16">
         <div
           className={`rounded-3xl border p-10 text-center shadow-xl ${
@@ -102,27 +109,17 @@ function HomePage({ darkMode, setDarkMode }) {
               : "bg-white border-red-200"
           }`}
         >
-          <h3 className="text-3xl font-bold mb-6">Start Research Experiment</h3>
+          <h3 className="text-3xl font-bold mb-6">{t("homepage.cardTitle")}</h3>
 
           <p className={`mb-8 ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
-            You will complete a short survey, interact with an AI assistant, and
-            complete a final survey.
+            {t("homepage.cardDescription")}
           </p>
 
           <button
             onClick={startExperiment}
-            className="
-        bg-red-600
-        hover:bg-red-700
-        text-white
-        px-8
-        py-4
-        rounded-xl
-        font-semibold
-        transition
-      "
+            className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-xl font-semibold transition"
           >
-            Start Experiment
+            {t("homepage.startButton")}
           </button>
         </div>
       </section>
