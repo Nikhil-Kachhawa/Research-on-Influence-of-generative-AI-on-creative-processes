@@ -5,50 +5,74 @@ import uuid
 class ExperimentCondition(models.Model):
     name = models.CharField(max_length=100)
 
+    class Meta:
+        ordering = ["id"]
+
     def __str__(self):
         return self.name
 
+
 class Participant(models.Model):
 
+    PHASE_CHOICES = [
+        ("chat_1", "Chat 1"),
+        ("survey_1", "Survey 1"),
+        ("chat_2", "Chat 2"),
+        ("survey_2", "Survey 2"),
+        ("completed", "Completed"),
+    ]
+
+    participant_id = models.UUIDField(
+        default=uuid.uuid4,
+        editable=False,
+        unique=True,
+    )
+
     participant_number = models.PositiveIntegerField(
-        unique=True
+        unique=True,
+        db_index=True,
     )
 
     first_condition = models.ForeignKey(
         ExperimentCondition,
         on_delete=models.CASCADE,
-        related_name="first_condition_participants"
+        related_name="first_condition_participants",
     )
 
     second_condition = models.ForeignKey(
         ExperimentCondition,
         on_delete=models.CASCADE,
-        related_name="second_condition_participants"
+        related_name="second_condition_participants",
     )
 
     current_condition = models.ForeignKey(
         ExperimentCondition,
         on_delete=models.CASCADE,
-        related_name="current_condition_participants"
+        related_name="current_condition_participants",
     )
 
-    first_chat_completed = models.BooleanField(
-        default=False
-    )
-
-    second_chat_completed = models.BooleanField(
-        default=False
+    experiment_phase = models.CharField(
+        max_length=20,
+        choices=PHASE_CHOICES,
+        default="chat_1",
     )
 
     started_at = models.DateTimeField(
-        auto_now_add=True
+        auto_now_add=True,
     )
 
     finished_at = models.DateTimeField(
         null=True,
-        blank=True
+        blank=True,
     )
-    
+
+    class Meta:
+        ordering = ["participant_number"]
+
+    def __str__(self):
+        return f"P{self.participant_number:03d}"
+
+
 class ChatSession(models.Model):
 
     participant = models.ForeignKey(
@@ -56,40 +80,45 @@ class ChatSession(models.Model):
         on_delete=models.CASCADE,
         related_name="sessions",
         null=True,
-        blank=True
+        blank=True,
     )
 
     session_id = models.UUIDField(
         default=uuid.uuid4,
         unique=True,
-        editable=False
+        editable=False,
     )
 
     condition = models.ForeignKey(
         ExperimentCondition,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )
 
     total_messages = models.IntegerField(
-        default=0
+        default=0,
     )
 
     created_at = models.DateTimeField(
-        auto_now_add=True
+        auto_now_add=True,
     )
+
+    class Meta:
+        ordering = ["created_at"]
 
     def __str__(self):
         return str(self.session_id)
 
+
 class ChatMessage(models.Model):
+
     session = models.ForeignKey(
         ChatSession,
         on_delete=models.CASCADE,
-        related_name="messages"
+        related_name="messages",
     )
 
     role = models.CharField(
-        max_length=30
+        max_length=30,
     )
 
     user_message = models.TextField()
@@ -97,19 +126,23 @@ class ChatMessage(models.Model):
     ai_response = models.TextField()
 
     engagement_estimation = models.FloatField(default=0.0)
+
     actual_engagement = models.FloatField(default=0.0)
+
     predicted_engagement = models.FloatField(default=0.0)
+
     predicted_reading_estimation = models.FloatField(default=0.0)
 
     created_at = models.DateTimeField(
-        auto_now_add=True
+        auto_now_add=True,
     )
 
     response_time_ms = models.IntegerField(
-        default=0
+        default=0,
     )
+
+    class Meta:
+        ordering = ["created_at"]
 
     def __str__(self):
         return f"Message {self.id}"
-    
-   

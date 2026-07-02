@@ -33,7 +33,9 @@ function ChatPage({ role }) {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "hidden") {
-        if(webgazer){webgazer.pause()}
+        if (webgazer) {
+          webgazer.pause();
+        }
         // user left tab
         lastHiddenTime.current = new Date();
         gazeStartTime.current = null;
@@ -42,7 +44,8 @@ function ChatPage({ role }) {
       if (document.visibilityState === "visible") {
         // user came back
         if (lastHiddenTime.current) {
-          const diff = (new Date().getTime() - lastHiddenTime.current.getTime()) / 1000; // seconds
+          const diff =
+            (new Date().getTime() - lastHiddenTime.current.getTime()) / 1000; // seconds
           totalAwayTime.current += diff;
           lastHiddenTime.current = null;
         }
@@ -85,9 +88,9 @@ function ChatPage({ role }) {
     const loadHistory = async () => {
       try {
         const data = await getChatHistory(getSessionId(role));
-        if(data.messages.length > 0){
+        if (data.messages.length > 0) {
           isFirstMessage.current = false;
-          init(document.getElementById("chatBox"))
+          init(document.getElementById("chatBox"));
         }
         const history = [];
 
@@ -102,7 +105,9 @@ function ChatPage({ role }) {
             content: msg.ai_response,
           });
         });
-        data.messages.length > 0 ? responseID.current = data.messages[data.messages.length - 1].id : 0;
+        data.messages.length > 0
+          ? (responseID.current = data.messages[data.messages.length - 1].id)
+          : 0;
         setMessages(history);
       } catch (error) {
         console.error("Failed to load history", error);
@@ -124,31 +129,30 @@ function ChatPage({ role }) {
     return () => window.removeEventListener("keydown", handleEscape);
   }, []);
 
-  let updateGazeTimer = ()=>{
+  let updateGazeTimer = () => {
     gazeEndTime.current = new Date();
-    gazeTimeCounter.current += (gazeEndTime.current.getTime() - gazeStartTime.current.getTime())/1000;
+    gazeTimeCounter.current +=
+      (gazeEndTime.current.getTime() - gazeStartTime.current.getTime()) / 1000;
     gazeStartTime.current = null;
-  }
+  };
 
   const init = async (rect) => {
     try {
-      
       webgazer
         .setGazeListener((data, elapsedTime) => {
-          if(document.visibilityState !== "visible"){
+          if (document.visibilityState !== "visible") {
             console.log("not counting anythin");
             return;
           }
-          if (!data && gazeStartTime.current) { 
+          if (!data && gazeStartTime.current) {
             updateGazeTimer();
             return;
-          }
-          else{
+          } else {
             const el = document.elementFromPoint(data.x, data.y);
             const isLookingAtTarget = rect.contains(el);
-            if(isLookingAtTarget && gazeStartTime.current == null){
+            if (isLookingAtTarget && gazeStartTime.current == null) {
               gazeStartTime.current = new Date();
-            }else  if (!isLookingAtTarget && gazeStartTime.current){
+            } else if (!isLookingAtTarget && gazeStartTime.current) {
               updateGazeTimer();
             }
           }
@@ -160,41 +164,43 @@ function ChatPage({ role }) {
     } catch (err) {
       console.error("WebGazer init failed:", err);
     }
-  }
-  
+  };
+
   let handleUserAttentionForLastResponse = async () => {
-    if(isFirstMessage.current){
+    if (isFirstMessage.current) {
       isFirstMessage.current = false;
     }
     startTime.current = new Date();
     gazeStartTime.current = new Date();
+  };
 
-  }
-
-  let endWebGazer = async () =>{
-    if(!isFirstMessage.current && startTime.current){
+  let endWebGazer = async () => {
+    if (!isFirstMessage.current && startTime.current) {
       endTime.current = new Date();
-      let diff = (endTime.current.getTime() - startTime.current.getTime())/1000;
-      if(gazeStartTime.current){ updateGazeTimer(); }
+      let diff =
+        (endTime.current.getTime() - startTime.current.getTime()) / 1000;
+      if (gazeStartTime.current) {
+        updateGazeTimer();
+      }
       const res = await api.post("attentionPrediction/", {
-        actual_engagement: (diff - totalAwayTime.current),
+        actual_engagement: diff - totalAwayTime.current,
         predicted_engagement: gazeTimeCounter.current,
-        response_id: responseID.current
+        response_id: responseID.current,
       });
     }
     gazeEndTime.current = null;
     gazeStartTime.current = null;
-    gazeTimeCounter.current= 0;
+    gazeTimeCounter.current = 0;
     responseID.current = null;
     totalAwayTime.current = 0;
-    try{
+    try {
       webgazer ? webgazer.end() : 0;
-    } catch{}
-  }
+    } catch {}
+  };
 
   const sendMessage = async () => {
     if (!input.trim()) return;
-    
+
     await endWebGazer();
     const userMessage = input;
 
@@ -212,14 +218,9 @@ function ChatPage({ role }) {
       setLoading(true);
       const res = await api.post("chat/", {
         participant_id: localStorage.getItem("participant_id"),
-
         session_id: getSessionId(role),
-
-        role,
-
         message: userMessage,
       });
-
       responseID.current = res.data.response_id;
       setMessages((prev) => [
         ...prev,
@@ -232,8 +233,6 @@ function ChatPage({ role }) {
       const rect = document.getElementById("chatBox");
       init(rect);
       handleUserAttentionForLastResponse();
-      
-
     } catch (error) {
       console.error(error);
 
@@ -250,10 +249,29 @@ function ChatPage({ role }) {
   };
 
   const finishExperiment = async () => {
-    await endWebGazer();
-    const participantId = localStorage.getItem("participant_id");
+    try {
+      await endWebGazer();
 
-    window.location.href = `https://sosci.rlp.net/nikhil/?q=qnr2&r=${participantId}`;
+      const participantId = localStorage.getItem("participant_id");
+
+      const res = await api.post("finish-chat/", {
+        participant_id: participantId,
+      });
+
+      const participantNumber = res.data.participant_number;
+      const role = res.data.role;
+
+      if (res.data.next_step === "survey_1") {
+        window.location.href = `${SURVEY.SURVEY_1}&r=${participantNumber}&role=${role}`;
+      }
+
+      if (res.data.next_step === "survey_2") {
+        window.location.href = `${SURVEY.SURVEY_2}&r=${participantNumber}&role=${role}`;
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Unable to finish chat.");
+    }
   };
 
   return (
@@ -300,7 +318,7 @@ function ChatPage({ role }) {
                 font-semibold
               "
             >
-              Finish Experiment
+              Finish Chat
             </button>
           </div>
         </div>
@@ -328,7 +346,7 @@ function ChatPage({ role }) {
                 : "bg-white border border-gray-200"
             }`}
           >
-            <h2 className="text-2xl font-bold mb-4">Finish Experiment?</h2>
+            <h2 className="text-2xl font-bold mb-4">Finish Chat?</h2>
 
             <p
               className={`mb-6 ${darkMode ? "text-gray-300" : "text-gray-600"}`}

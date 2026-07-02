@@ -4,37 +4,44 @@ from .models import (
     Participant,
     ExperimentCondition,
     ChatSession,
-    ChatMessage
+    ChatMessage,
 )
+
 
 @admin.register(Participant)
 class ParticipantAdmin(admin.ModelAdmin):
 
     list_display = (
+        "participant_number",
         "participant_id",
-        "assigned_condition",
-        "pre_survey_completed",
-        "post_survey_completed",
+        "first_condition",
+        "second_condition",
+        "current_condition",
+        "experiment_phase",
         "started_at",
         "finished_at",
-        "session_duration"
     )
+
     list_filter = (
-        "assigned_condition",
-        "pre_survey_completed",
-        "post_survey_completed",
+        "experiment_phase",
+        "first_condition",
+        "second_condition",
+        "current_condition",
     )
 
-    def session_duration(self, obj):
-        if obj.session_duration_minutes is None:
-            return "-"
+    search_fields = (
+        "participant_number",
+        "participant_id",
+    )
 
-        return f"{obj.session_duration_minutes} min"
+    ordering = (
+        "-participant_number",
+    )
 
-    session_duration.short_description = "Session Duration"
 
 @admin.register(ExperimentCondition)
 class ExperimentConditionAdmin(admin.ModelAdmin):
+
     list_display = (
         "id",
         "name",
@@ -47,6 +54,7 @@ class ExperimentConditionAdmin(admin.ModelAdmin):
 
 @admin.register(ChatSession)
 class ChatSessionAdmin(admin.ModelAdmin):
+
     list_display = (
         "id",
         "session_id",
@@ -72,12 +80,14 @@ class ChatSessionAdmin(admin.ModelAdmin):
 
 @admin.register(ChatMessage)
 class ChatMessageAdmin(admin.ModelAdmin):
+
     list_display = (
         "id",
+        "session",
         "role",
         "short_user_message",
+        "response_time_ms",
         "created_at",
-        "ai_response",
     )
 
     list_filter = (
@@ -95,6 +105,10 @@ class ChatMessageAdmin(admin.ModelAdmin):
     )
 
     def short_user_message(self, obj):
-        return obj.user_message[:80]
+        return (
+            obj.user_message[:80] + "..."
+            if len(obj.user_message) > 80
+            else obj.user_message
+        )
 
     short_user_message.short_description = "User Message"

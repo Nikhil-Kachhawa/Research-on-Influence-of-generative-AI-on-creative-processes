@@ -1,15 +1,19 @@
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "../context/ThemeContext";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+
+import { useTheme } from "../context/ThemeContext";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import universityLogo from "../assets/uk.svg";
 import api from "../services/api";
 
 function HomePage() {
   const navigate = useNavigate();
+
   const { darkMode, toggleTheme } = useTheme();
+
   const { t } = useTranslation();
+
   useEffect(() => {
     document.title = t("header.title");
   }, [t]);
@@ -20,11 +24,16 @@ function HomePage() {
 
       localStorage.setItem("participant_id", res.data.participant_id);
 
-      localStorage.setItem("condition", res.data.condition);
+      localStorage.setItem("participant_number", res.data.participant_number);
 
-      window.location.href = `https://sosci.rlp.net/nikhil/?r=${res.data.participant_id}`;
+      if (res.data.current_role === "idea-generator") {
+        navigate("/idea-generator");
+      } else {
+        navigate("/critical-evaluator");
+      }
     } catch (error) {
       console.error(error);
+      alert("Unable to start the experiment.");
     }
   };
 
@@ -80,14 +89,17 @@ function HomePage() {
           </div>
         </div>
       </header>
+
       {/* Hero */}
       <section className="max-w-6xl mx-auto px-4 md:px-6 pt-6 pb-12 text-center">
         <h2 className="font-bold leading-tight mb-6 text-4xl sm:text-5xl lg:text-6xl">
           {t("homepage.heroTitle1")}
+
           <span className="text-red-600 block md:inline">
             {" "}
             {t("homepage.heroTitle2")}{" "}
           </span>
+
           {t("homepage.heroTitle3")}
         </h2>
 
@@ -117,7 +129,16 @@ function HomePage() {
 
           <button
             onClick={startExperiment}
-            className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-xl font-semibold transition"
+            className="
+              bg-red-600
+              hover:bg-red-700
+              text-white
+              px-8
+              py-4
+              rounded-xl
+              font-semibold
+              transition
+            "
           >
             {t("homepage.startButton")}
           </button>

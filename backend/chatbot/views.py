@@ -1,171 +1,170 @@
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from django.utils import timezone
+import logging
+import random
 import time
 
-from chatbot.services.llm import generate_response
-from chatbot.services.knowledge import get_context
+from django.db.models import Max
+from django.utils import timezone
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
 from chatbot.prompts import (
     IDEA_GENERATOR_PROMPT,
-    CRITICAL_EVALUATOR_PROMPT
+    CRITICAL_EVALUATOR_PROMPT,
 )
-from django.db.models import Avg
+from chatbot.services.knowledge import get_context
+from chatbot.services.llm import generate_response
+
 from .models import (
-    Participant,
-    ChatSession,
     ChatMessage,
-    ExperimentCondition
+    ChatSession,
+    ExperimentCondition,
+    Participant,
 )
-import logging
 
 logger = logging.getLogger(__name__)
 
+
 @api_view(["GET"])
 def health(request):
-    return Response({
-        "status": "working"
-    })
+    return Response({"status": "working"})
+
 
 @api_view(["POST"])
 def start_experiment(request):
 
-    idea_count = Participant.objects.filter(
-        assigned_condition__name="idea-generator"
-    ).count()
+    next_number = (
+        Participant.objects.aggregate(Max("participant_number"))[
+            "participant_number__max"
+        ]
+        or 0
+    ) + 1
 
-    critical_count = Participant.objects.filter(
-        assigned_condition__name="critical-evaluator"
-    ).count()
+    idea_generator = ExperimentCondition.objects.get(name="idea-generator")
 
-    if idea_count <= critical_count:
-        condition_name = "idea-generator"
+    critical_evaluator = ExperimentCondition.objects.get(name="critical-evaluator")
+
+    if random.choice([True, False]):
+        first_condition = idea_generator
+        second_condition = critical_evaluator
     else:
-        condition_name = "critical-evaluator"
-
-    condition = ExperimentCondition.objects.get(
-        name=condition_name
-    )
+        first_condition = critical_evaluator
+        second_condition = idea_generator
 
     participant = Participant.objects.create(
-        assigned_condition=condition
+        participant_number=next_number,
+        first_condition=first_condition,
+        second_condition=second_condition,
+        current_condition=first_condition,
+        experiment_phase="chat_1",
     )
 
-    return Response({
-        "participant_id":
-            str(participant.participant_id),
+    return Response(
+        {
+            "participant_id": str(participant.participant_id),
+            "participant_number": f"{participant.participant_number:03d}",
+            "current_role": participant.current_condition.name,
+            "experiment_phase": participant.experiment_phase,
+        }
+    )
 
-        "condition":
-            condition_name
-    })
 
 @api_view(["POST"])
-def complete_survey(request):
+def continue_experiment(request):
 
-    participant_id = request.data.get(
-        "participant_id"
-    )
+    participant_id = request.data.get("participant_id")
 
-    survey_type = request.data.get(
-        "survey_type"
-    )
-
-    try:
-
-        participant = Participant.objects.get(
-            participant_id=participant_id
+    if not participant_id:
+        return Response(
+            {"error": "Participant ID is required."},
+            status=400,
         )
 
+    try:
+        participant = Participant.objects.get(participant_id=participant_id)
+
     except Participant.DoesNotExist:
+        return Response(
+            {"error": "Participant not found."},
+            status=404,
+        )
+
+    if participant.experiment_phase == "survey_1":
+
+        participant.current_condition = participant.second_condition
+        participant.experiment_phase = "chat_2"
+        participant.save()
 
         return Response(
             {
-                "error":
-                "Participant not found"
-            },
-            status=404
+                "participant_number": f"{participant.participant_number:03d}",
+                "current_role": participant.current_condition.name,
+                "experiment_phase": participant.experiment_phase,
+            }
         )
 
-    if survey_type == "pre":
+    elif participant.experiment_phase == "survey_2":
 
-        participant.pre_survey_completed = True
+        participant.experiment_phase = "completed"
+        participant.finished_at = timezone.now()
+        participant.save()
 
-    elif survey_type == "post":
+        return Response({"status": "completed"})
 
-        participant.post_survey_completed = True
+    return Response(
+        {"error": "Invalid experiment state."},
+        status=400,
+    )
 
-        participant.finished_at = (
-            timezone.now()
-        )
-
-    participant.save()
-
-    return Response({
-        "success": True
-    })
 
 @api_view(["GET"])
 def chat_history(request, session_id):
 
     try:
-        session = ChatSession.objects.get(
-            session_id=session_id
-        )
+        session = ChatSession.objects.get(session_id=session_id)
 
     except ChatSession.DoesNotExist:
-        return Response(
-            {"messages": []}
-        )
+        return Response({"messages": []})
 
-    messages = ChatMessage.objects.filter(
-        session=session
-    ).order_by("created_at")
+    messages = ChatMessage.objects.filter(session=session).order_by("created_at")
 
     data = []
 
     for msg in messages:
 
-        data.append({
-            "id": msg.id,
-            "user_message": msg.user_message,
-            "ai_response": msg.ai_response,
-            "created_at": msg.created_at
-        })
+        data.append(
+            {
+                "id": msg.id,
+                "user_message": msg.user_message,
+                "ai_response": msg.ai_response,
+                "created_at": msg.created_at,
+            }
+        )
 
-    return Response({
-        "messages": data
-    })
+    return Response({"messages": data})
+
 
 @api_view(["POST"])
 def attentionPrediction(request):
     try:
-        message = ChatMessage.objects.get(
-            id=request.data.get("response_id")
-        )
+        message = ChatMessage.objects.get(id=request.data.get("response_id"))
         logger.info("Chat message accessed: %s", message.id)
     except ChatMessage.DoesNotExist:
-        logger.error(
-            "Error accessing chatmessage: %s",
-            request.data.get("response_id")
-        )
-        return Response(
-            {
-                "error": "Participant not found"
-            },
-            status=404
-        )
+        logger.error("Error accessing chatmessage: %s", request.data.get("response_id"))
+        return Response({"error": "Participant not found"}, status=404)
 
     word_count = len(message.ai_response.split())
     avg_reading_speed = 200
     message.actual_engagement = request.data.get("actual_engagement")
-    message.engagement_estimation = (word_count/avg_reading_speed) * 60
+    message.engagement_estimation = (word_count / avg_reading_speed) * 60
     message.predicted_engagement = request.data.get("predicted_engagement")
-    message.predicted_reading_estimation = request.data.get("predicted_engagement")/message.engagement_estimation
+    message.predicted_reading_estimation = (
+        request.data.get("predicted_engagement") / message.engagement_estimation
+    )
 
     message.save()
     logger.info("chat message analytics updated: %s", message.id)
     return Response({"success": True})
-
-
 
 
 @api_view(["POST"])
@@ -173,313 +172,145 @@ def chat(request):
 
     start_time = time.time()
 
-    role = request.data.get("role")
     user_message = request.data.get("message")
     session_id = request.data.get("session_id")
     participant_id = request.data.get("participant_id")
 
+    if not user_message:
+        return Response({"error": "Message is required."}, status=400)
+
+    if not participant_id:
+        return Response({"error": "Participant ID is required."}, status=400)
+
+    if not session_id:
+        return Response({"error": "Session ID is required."}, status=400)
+
     try:
-        participant = Participant.objects.get(
-            participant_id=participant_id
-        )
+        participant = Participant.objects.get(participant_id=participant_id)
+
     except Participant.DoesNotExist:
+        return Response({"error": "Participant not found"}, status=404)
+
+    if participant.experiment_phase not in ("chat_1", "chat_2"):
         return Response(
-            {
-                "error": "Participant not found"
-            },
-            status=404
+            {"error": "Chat is not available in the current experiment phase."},
+            status=403,
         )
 
-    if not participant.pre_survey_completed:
-        return Response(
-            {
-                "error": "Complete survey first"
-            },
-            status=403
-        )
-
-    condition, _ = ExperimentCondition.objects.get_or_create(
-        name=role
-    )
+    role = participant.current_condition.name
 
     session, _ = ChatSession.objects.get_or_create(
         session_id=session_id,
         defaults={
-            "condition": condition,
-            "participant": participant
-        }
+            "condition": participant.current_condition,
+            "participant": participant,
+        },
     )
 
-    # Get last 20 messages for memory
-    # previous_messages = (
-    #     ChatMessage.objects
-    #     .filter(session=session)
-    #     .order_by("created_at")[:20]
-    # )
-
-    # Get all messages for memory
-    previous_messages = (
-        ChatMessage.objects
-        .filter(session=session)
-        .order_by("created_at")
+    previous_messages = ChatMessage.objects.filter(session=session).order_by(
+        "created_at"
     )
 
-    # Retrieve relevant university context for this query
     context = get_context(user_message)
 
-    base_prompt = IDEA_GENERATOR_PROMPT if role == "idea-generator" else CRITICAL_EVALUATOR_PROMPT
+    base_prompt = (
+        IDEA_GENERATOR_PROMPT if role == "idea-generator" else CRITICAL_EVALUATOR_PROMPT
+    )
 
     if context:
         system_content = (
             f"{base_prompt}\n\n"
             f"=== University of Koblenz — FB4 Research Context ===\n"
-            f"The following is real information about faculty, research projects, and thesis topics "
-            f"at the University of Koblenz Computer Science department. "
-            f"Use it to ground your suggestions in the department's actual research areas:\n\n"
+            f"The following is real information about faculty, research projects, "
+            f"and thesis topics at the University of Koblenz Computer Science "
+            f"department. Use it to ground your suggestions in the department's "
+            f"actual research areas:\n\n"
             f"{context}\n"
             f"====================================================="
         )
     else:
         system_content = base_prompt
 
-    messages = []
-    messages.append({
-        "role": "system",
-        "content": system_content
-    })
+    messages = [{"role": "system", "content": system_content}]
 
-    # system_prompt = (
-    #     IDEA_GENERATOR_PROMPT
-    #     if role == "idea-generator"
-    #     else CRITICAL_EVALUATOR_PROMPT
-    # )
-
-    # messages = [
-    #     {
-    #         "role": "system",
-    #         "content": system_prompt
-    #     }
-    # ]
-
-    # Add conversation history
     for msg in previous_messages:
 
-        messages.append(
-            {
-                "role": "user",
-                "content": msg.user_message
-            }
-        )
+        messages.append({"role": "user", "content": msg.user_message})
 
-        messages.append(
-            {
-                "role": "assistant",
-                "content": msg.ai_response
-            }
-        )
+        messages.append({"role": "assistant", "content": msg.ai_response})
 
-    # Add current user message
-    messages.append(
-        {
-            "role": "user",
-            "content": user_message
-        }
-    )
+    messages.append({"role": "user", "content": user_message})
 
-    ai_response = generate_response(
-        messages
-    )
+    ai_response = generate_response(messages)
 
-    response_time_ms = int(
-        (time.time() - start_time) * 1000
-    )
+    response_time_ms = int((time.time() - start_time) * 1000)
 
-    dataSaved  =ChatMessage.objects.create(
+    saved_message = ChatMessage.objects.create(
         session=session,
         role=role,
         user_message=user_message,
         ai_response=ai_response,
-        response_time_ms=response_time_ms
+        response_time_ms=response_time_ms,
     )
 
     session.total_messages += 1
-    session.save()
+    session.save(update_fields=["total_messages"])
 
-    return Response({
-        "response": ai_response,
-        "response_id": dataSaved.id
-    })
-
-
-@api_view(["GET"])
-def experiment_stats(request):
-
-    return Response({
-
-        "participants":
-            Participant.objects.count(),
-
-        "idea_generator":
-            Participant.objects.filter(
-                assigned_condition__name=
-                "idea-generator"
-            ).count(),
-
-        "critical_evaluator":
-            Participant.objects.filter(
-                assigned_condition__name=
-                "critical-evaluator"
-            ).count(),
-
-        "completed":
-            Participant.objects.filter(
-                post_survey_completed=True
-            ).count()
-
-    })
-
-
-@api_view(["GET"])
-def experiment_export(request):
-
-    participants = Participant.objects.all()
-
-    data = []
-
-    for p in participants:
-
-        data.append({
-
-            "participant_id":
-                str(p.participant_id),
-
-            "condition":
-                p.assigned_condition.name,
-
-            "total_messages":
-                ChatMessage.objects.filter(session__participant=p).count(),   
-
-            "pre_completed":
-                p.pre_survey_completed,
-
-            "post_completed":
-                p.post_survey_completed,
-
-            "started_at":
-                p.started_at,
-
-            "finished_at":
-                p.finished_at,
-
-            "session_duration_seconds": 
-                p.session_duration_seconds,
-            
-            "session_duration_minutes": 
-                p.session_duration_minutes,    
-        })
-
-    return Response(data)
-
-@api_view(["GET"])
-def chat_export(request):
-
-    data = []
-
-    messages = ChatMessage.objects.select_related(
-        "session",
-        "session__participant",
-        "session__condition"
+    return Response(
+        {
+            "response": ai_response,
+            "response_id": saved_message.id,
+        }
     )
 
-    for index, msg in enumerate(messages, start=1):
 
-        data.append({
+@api_view(["POST"])
+def finish_chat(request):
 
-            "participant_id":
-                str(
-                    msg.session.participant.participant_id
-                ),
+    participant_id = request.data.get("participant_id")
 
-            "condition":
-                msg.session.condition.name,
+    if not participant_id:
+        return Response(
+            {"error": "Participant ID is required."},
+            status=400,
+        )
 
-            "user_message":
-                msg.user_message,
+    try:
+        participant = Participant.objects.get(participant_id=participant_id)
 
-            "ai_response":
-                msg.ai_response,
+    except Participant.DoesNotExist:
+        return Response(
+            {"error": "Participant not found."},
+            status=404,
+        )
 
-            "response_time_ms":
-                msg.response_time_ms,
+    if participant.experiment_phase == "chat_1":
 
-            "created_at":
-                msg.created_at,
+        participant.experiment_phase = "survey_1"
+        participant.save()
 
-            "session_id":
-                str(msg.session.session_id),
+        return Response(
+            {
+                "next_step": "survey_1",
+                "participant_number": f"{participant.participant_number:03d}",
+                "role": participant.current_condition.name,
+            }
+        )
 
-            "message_number": index,
+    elif participant.experiment_phase == "chat_2":
 
-            "total_messages":
-                msg.session.total_messages,    
+        participant.experiment_phase = "survey_2"
+        participant.save()
 
-            "session_duration_seconds":
-                msg.session.participant.session_duration_seconds,
+        return Response(
+            {
+                "next_step": "survey_2",
+                "participant_number": f"{participant.participant_number:03d}",
+                "role": participant.current_condition.name,
+            }
+        )
 
-            "session_duration_minutes":
-                msg.session.participant.session_duration_minutes,
-
-            "pre_completed":
-                msg.session.participant.pre_survey_completed,
-
-            "post_completed":
-                msg.session.participant.post_survey_completed,    
-        })
-
-    return Response(data)
-
-@api_view(["GET"])
-def dashboard_data(request):
-
-    participants = Participant.objects.count()
-
-    completed = Participant.objects.filter(
-        post_survey_completed=True
-    ).count()
-
-    idea_generator = Participant.objects.filter(
-        assigned_condition__name="idea-generator"
-    ).count()
-
-    critical_evaluator = Participant.objects.filter(
-        assigned_condition__name="critical-evaluator"
-    ).count()
-
-    completed_participants = Participant.objects.filter(
-        finished_at__isnull=False
+    return Response(
+        {"error": "Invalid experiment state."},
+        status=400,
     )
-
-    durations = [
-        p.session_duration_minutes
-        for p in completed_participants
-        if p.session_duration_minutes is not None
-    ]
-
-    avg_duration = (
-        round(sum(durations) / len(durations), 2)
-        if durations
-        else 0
-    )
-
-    avg_messages = ChatSession.objects.aggregate(
-        Avg("total_messages")
-    )["total_messages__avg"] or 0
-
-    return Response({
-        "participants": participants,
-        "completed": completed,
-        "idea_generator": idea_generator,
-        "critical_evaluator": critical_evaluator,
-        "avg_duration": avg_duration,
-        "avg_messages": round(avg_messages, 2),
-    })
