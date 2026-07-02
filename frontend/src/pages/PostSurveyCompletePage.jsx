@@ -1,11 +1,17 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 
 function PostSurveyCompletePage() {
   const navigate = useNavigate();
-
+  const hasRun = useRef(false);
   useEffect(() => {
+    if (hasRun.current) {
+      return;
+    }
+
+    hasRun.current = true;
+
     const continueExperiment = async () => {
       try {
         const participantId = localStorage.getItem("participant_id");
@@ -47,15 +53,11 @@ function PostSurveyCompletePage() {
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
-
-        <h1 className="text-3xl font-bold mb-4">
-          Preparing the next step...
-        </h1>
+        <h1 className="text-3xl font-bold mb-4">Preparing the next step...</h1>
 
         <p className="text-gray-600">
           Please wait while your experiment is continued.
         </p>
-
       </div>
     </div>
   );

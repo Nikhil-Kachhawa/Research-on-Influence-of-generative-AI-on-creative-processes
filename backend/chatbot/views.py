@@ -40,9 +40,11 @@ def start_experiment(request):
         or 0
     ) + 1
 
-    idea_generator = ExperimentCondition.objects.get(name="idea-generator")
+    idea_generator, _ = ExperimentCondition.objects.get_or_create(name="idea-generator")
 
-    critical_evaluator = ExperimentCondition.objects.get(name="critical-evaluator")
+    critical_evaluator, _ = ExperimentCondition.objects.get_or_create(
+        name="critical-evaluator"
+    )
 
     if random.choice([True, False]):
         first_condition = idea_generator

@@ -2,6 +2,7 @@ import { getSessionId } from "../utils/session";
 import { useState, useRef, useEffect } from "react";
 // import { useNavigate } from "react-router-dom";
 import api, { getChatHistory } from "../services/api";
+import { SURVEY } from "../config/Survey";
 
 import ChatHeader from "../components/ChatHeader";
 import ChatMessages from "../components/ChatMessages";
@@ -182,11 +183,15 @@ function ChatPage({ role }) {
       if (gazeStartTime.current) {
         updateGazeTimer();
       }
-      const res = await api.post("attentionPrediction/", {
-        actual_engagement: diff - totalAwayTime.current,
-        predicted_engagement: gazeTimeCounter.current,
-        response_id: responseID.current,
-      });
+      try {
+        await api.post("attentionPrediction/", {
+          actual_engagement: diff - totalAwayTime.current,
+          predicted_engagement: gazeTimeCounter.current,
+          response_id: responseID.current,
+        });
+      } catch (error) {
+        console.error("Attention prediction failed:", error);
+      }
     }
     gazeEndTime.current = null;
     gazeStartTime.current = null;
@@ -259,7 +264,7 @@ function ChatPage({ role }) {
       });
 
       const participantNumber = res.data.participant_number;
-      const role = res.data.role;
+      const currentRole = res.data.current_role;
 
       if (res.data.next_step === "survey_1") {
         window.location.href = `${SURVEY.SURVEY_1}&r=${participantNumber}&role=${role}`;
