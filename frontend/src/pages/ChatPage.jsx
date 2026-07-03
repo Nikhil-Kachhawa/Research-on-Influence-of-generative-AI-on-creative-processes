@@ -1,5 +1,6 @@
 import { getSessionId } from "../utils/session";
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 // import { useNavigate } from "react-router-dom";
 import api, { getChatHistory } from "../services/api";
 import { SURVEY } from "../config/Survey";
@@ -13,6 +14,7 @@ const webgazer = webgazerModule.default || webgazerModule;
 import { useTheme } from "../context/ThemeContext";
 
 function ChatPage({ role }) {
+  const { t } = useTranslation();
   const { darkMode } = useTheme();
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
@@ -200,7 +202,7 @@ function ChatPage({ role }) {
     totalAwayTime.current = 0;
     try {
       webgazer ? webgazer.end() : 0;
-    } catch {}
+    } catch { }
   };
 
   const sendMessage = async () => {
@@ -267,14 +269,13 @@ function ChatPage({ role }) {
 
       if (res.data.next_step === "survey_1") {
         localStorage.removeItem("session_id");
-        window.location.href = `${SURVEY.SURVEY_1}&r=${participantNumber}&role=${role}`;
+        window.location.href = `${SURVEY.SURVEY_1}&r=${participantNumber}&urole=${role}`;
       }
 
       if (res.data.next_step === "survey_2") {
         localStorage.removeItem("session_id");
-        window.location.href = `${SURVEY.SURVEY_2}&r=${participantNumber}&role=${role}`;
+        window.location.href = `${SURVEY.SURVEY_2}&r=${participantNumber}&urole=${role}`;
       }
-
     } catch (error) {
       console.error(error);
       alert("Unable to finish chat.");
@@ -283,19 +284,17 @@ function ChatPage({ role }) {
 
   return (
     <div
-      className={`min-h-screen ${
-        darkMode ? "bg-[#0B1020] text-white" : "bg-white text-black"
-      }`}
+      className={`min-h-screen ${darkMode ? "bg-[#0B1020] text-white" : "bg-white text-black"
+        }`}
     >
       <ChatHeader role={role} />
 
       <main className="max-w-6xl mx-auto px-4 py-6">
         <div
-          className={`rounded-3xl border shadow-xl overflow-hidden ${
-            darkMode
-              ? "bg-[#141B34] border-gray-800"
-              : "bg-white border-red-200"
-          }`}
+          className={`rounded-3xl border shadow-xl overflow-hidden ${darkMode
+            ? "bg-[#141B34] border-gray-800"
+            : "bg-white border-red-200"
+            }`}
         >
           <ChatMessages
             messages={messages}
@@ -325,7 +324,7 @@ function ChatPage({ role }) {
                 font-semibold
               "
             >
-              Finish Chat
+              { t("finish.button") }
             </button>
           </div>
         </div>
@@ -347,51 +346,48 @@ function ChatPage({ role }) {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className={`w-full max-w-md rounded-2xl p-6 shadow-2xl ${
-              darkMode
-                ? "bg-[#141B34] border border-gray-700"
-                : "bg-white border border-gray-200"
-            }`}
+            className={`w-full max-w-md rounded-2xl p-6 shadow-2xl ${darkMode
+              ? "bg-[#141B34] border border-gray-700"
+              : "bg-white border border-gray-200"
+              }`}
           >
-            <h2 className="text-2xl font-bold mb-4">Finish Chat?</h2>
+            <h2 className="text-2xl font-bold mb-4">{t("finish.title")}</h2>
 
             <p
               className={`mb-6 ${darkMode ? "text-gray-300" : "text-gray-600"}`}
             >
-              You will be redirected to the post-survey questionnaire. After
-              proceeding, you will not be able to continue this chat session.
+              {t("finish.redirectMessage")}
             </p>
 
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowFinishModal(false)}
                 className={`
-                  px-4
-                  py-2
-                  rounded-lg
-                  border
-                  ${
-                    darkMode
-                      ? "border-gray-600 hover:bg-gray-800"
-                      : "border-gray-300 hover:bg-gray-100"
+      px-4
+      py-2
+      rounded-lg
+      border
+      ${darkMode
+                    ? "border-gray-600 hover:bg-gray-800"
+                    : "border-gray-300 hover:bg-gray-100"
                   }
-                `}
+    `}
               >
-                Continue Chat
+                {t("finish.cancel")}
               </button>
 
               <button
                 onClick={finishExperiment}
                 className="
-                  px-4
-                  py-2
-                  rounded-lg
-                  bg-green-600
-                  hover:bg-green-700
-                  text-white
-                "
+      px-4
+      py-2
+      rounded-lg
+      bg-green-600
+      hover:bg-green-700
+      text-white
+    "
               >
-                Proceed to Survey
+                {t("finish.confirm")}
               </button>
             </div>
           </div>

@@ -6,7 +6,11 @@
     "lightMode": "Heller Modus",
     "darkMode": "Dunkler Modus",
     "send": "Senden",
-    "thinking": "🤖 Denkt nach..."
+    "thinking": "🤖 Denkt nach...",
+    "loading": "Wird geladen...",
+    "loadingExperiment": "Experiment wird geladen...",
+    "continue": "Weiter",
+    "close": "Schließen"
   },
 
   "header": {
@@ -41,8 +45,9 @@
   "finish": {
     "button": "Chat beenden",
     "title": "Chat beenden",
-    "message": "Möchten Sie diesen Chat wirklich beenden? Danach können Sie ihn nicht fortsetzen.",
-    "cancel": "Abbrechen",
+    "message": "Möchten Sie diesen Chat wirklich beenden? Danach können Sie den Chat nicht mehr fortsetzen.",
+    "redirectMessage": "Sie werden zum Fragebogen nach dem Experiment weitergeleitet. Danach können Sie diese Chatsitzung nicht mehr fortsetzen.",
+    "cancel": "Chat fortsetzen",
     "confirm": "Zur Umfrage"
   },
 
@@ -53,5 +58,21 @@
   "thankYou": {
     "title": "Vielen Dank",
     "message": "Vielen Dank für Ihre Teilnahme an unserer Forschungsstudie."
+  },
+
+  "survey": {
+    "redirecting": "Weiterleitung zur Umfrage...",
+    "pleaseWait": "Bitte warten..."
+  },
+
+  "continueExperiment": {
+    "title": "Der nächste Schritt wird vorbereitet...",
+    "message": "Bitte warten Sie, während Ihr Experiment fortgesetzt wird."
+  },
+
+  "errors": {
+    "generic": "Etwas ist schiefgelaufen.",
+    "network": "Netzwerkfehler. Bitte versuchen Sie es erneut.",
+    "retry": "Erneut versuchen"
   }
 }

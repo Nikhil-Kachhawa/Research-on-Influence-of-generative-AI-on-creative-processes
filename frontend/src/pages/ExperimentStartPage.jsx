@@ -1,10 +1,11 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { useTranslation } from "react-i18next";
 
 function ExperimentStartPage() {
   const navigate = useNavigate();
-
+  const { t } = useTranslation();
   useEffect(() => {
     const startExperiment = async () => {
       try {
@@ -35,7 +36,7 @@ function ExperimentStartPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      Loading Experiment...
+      { t("common.loadingExperiment") }
     </div>
   );
 }

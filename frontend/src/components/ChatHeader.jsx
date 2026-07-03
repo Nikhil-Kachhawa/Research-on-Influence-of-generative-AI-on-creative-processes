@@ -25,12 +25,12 @@ function ChatHeader({ role }) {
         <div className="flex items-center gap-3">
           <LanguageSwitcher darkMode={darkMode} />
 
-          <Link
+          {/* <Link
             to="/"
             className="h-12 px-5 rounded-full border flex items-center border-red-500 hover:bg-red-600 hover:text-white transition"
           >
             🏠 {t("common.home")}
-          </Link>
+          </Link> */}
 
           <div className="h-12 px-5 rounded-full border flex items-center border-red-500">
             {role === "idea-generator"

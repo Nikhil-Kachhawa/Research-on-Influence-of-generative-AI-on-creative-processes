@@ -1,9 +1,11 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import api from "../services/api";
 
 function PostSurveyCompletePage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const hasRun = useRef(false);
   useEffect(() => {
     if (hasRun.current) {
@@ -57,10 +59,12 @@ function PostSurveyCompletePage() {
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
-        <h1 className="text-3xl font-bold mb-4">Preparing the next step...</h1>
+        <h1 className="text-3xl font-bold mb-4">
+          {t("continueExperiment.title")}
+          </h1>
 
         <p className="text-gray-600">
-          Please wait while your experiment is continued.
+          {t("continueExperiment.message")}
         </p>
       </div>
     </div>

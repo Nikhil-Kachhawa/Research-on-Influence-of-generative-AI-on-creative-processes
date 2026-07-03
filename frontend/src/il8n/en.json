@@ -6,7 +6,16 @@
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
     "send": "Send",
-    "thinking": "🤖 Thinking..."
+    "thinking": "🤖 Thinking...",
+    "loading": "Loading...",
+    "loadingExperiment": "Loading Experiment...",
+    "continue": "Continue",
+    "close": "Close"
+  },
+
+  "survey": {
+    "redirecting": "Redirecting to survey...",
+    "pleaseWait": "Please wait..."
   },
 
   "header": {
@@ -42,7 +51,8 @@
     "button": "Finish Chat",
     "title": "Finish Chat",
     "message": "Are you sure you want to finish this chat? You cannot continue after proceeding.",
-    "cancel": "Cancel",
+    "redirectMessage": "You will be redirected to the post-survey questionnaire. After proceeding, you will not be able to continue this chat session.",
+    "cancel": "Continue Chat",
     "confirm": "Proceed to Survey"
   },
 
@@ -53,5 +63,16 @@
   "thankYou": {
     "title": "Thank You",
     "message": "Thank you for participating in our research study."
+  },
+
+  "continueExperiment": {
+    "title": "Preparing the next step...",
+    "message": "Please wait while your experiment is continued."
+  },
+
+  "errors": {
+    "generic": "Something went wrong.",
+    "network": "Network error. Please try again.",
+    "retry": "Retry"
   }
 }
