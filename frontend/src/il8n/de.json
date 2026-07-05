@@ -33,13 +33,13 @@
   },
 
   "chat": {
-    "placeholder": "Geben Sie Ihre Idee für ein Abschlussarbeitsthema ein...",
+    "placeholder": "Schreiben Sie Ihre Nachricht...",
 
-    "ideaGenerator": "💡 Ideengenerator",
-    "criticalEvaluator": "🔍 Kritischer Gutachter",
+    "ideaGenerator": "Agent 1",
+    "criticalEvaluator": "Agent 2",
 
-    "ideaDescription": "Erstellen Sie innovative Forschungsthemen.",
-    "criticalDescription": "Analysieren und verbessern Sie Forschungsideen."
+    "ideaDescription": " ",
+    "criticalDescription": " "
   },
 
   "finish": {

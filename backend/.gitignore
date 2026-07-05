@@ -62,3 +62,7 @@ frontend/dist/
 # Environment Files
 .env.*
 !.env.example
+
+# ChromaDB Vector Store
+backend/chatbot/vector_store/
+backend/chatbot/vector_store/chroma.sqlite3

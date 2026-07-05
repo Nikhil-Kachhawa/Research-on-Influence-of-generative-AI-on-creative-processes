@@ -25,3 +25,7 @@ venv/
 # Django
 db.sqlite3
 staticfiles/
+
+# ChromaDB Vector Store
+backend/chatbot/vector_store/
+backend/chatbot/vector_store/chroma.sqlite3

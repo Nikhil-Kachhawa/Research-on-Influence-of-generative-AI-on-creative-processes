@@ -29,9 +29,9 @@ function HomePage() {
       localStorage.setItem("session_id", res.data.session_id);
 
       if (res.data.current_role === "idea-generator") {
-        navigate("/idea-generator");
+        navigate("/agent1");
       } else {
-        navigate("/critical-evaluator");
+        navigate("/agent2");
       }
     } catch (error) {
       console.error(error);

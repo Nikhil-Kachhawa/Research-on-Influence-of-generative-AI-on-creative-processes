@@ -30,7 +30,7 @@ function ChatMessages({
           <div className="text-center">
 
             <div className="text-6xl mb-4">
-              {role === "idea-generator" ? "💡" : "🔍"}
+              {role === "idea-generator" ? "🤖" : "🤖"}
             </div>
 
             <h2 className="text-3xl font-bold mb-4">

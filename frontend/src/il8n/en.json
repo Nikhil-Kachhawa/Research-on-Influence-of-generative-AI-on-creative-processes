@@ -1,4 +1,5 @@
 {
+
   "common": {
     "home": "Home",
     "english": "English",
@@ -38,13 +39,13 @@
   },
 
   "chat": {
-    "placeholder": "Enter your thesis idea...",
+    "placeholder": "Write your message...",
 
-    "ideaGenerator": "💡 Idea Generator",
-    "criticalEvaluator": "🔍 Critical Evaluator",
+    "ideaGenerator": "Agent 1",
+    "criticalEvaluator": "Agent 2",
 
-    "ideaDescription": "Generate innovative research topics.",
-    "criticalDescription": "Analyze and improve research ideas."
+    "ideaDescription": " ",
+    "criticalDescription": " "
   },
 
   "finish": {

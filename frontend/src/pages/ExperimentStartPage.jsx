@@ -20,9 +20,9 @@ function ExperimentStartPage() {
         const condition = localStorage.getItem("condition");
 
         if (condition === "idea-generator") {
-          navigate("/idea-generator");
+          navigate("/agent1");
         } else {
-          navigate("/critical-evaluator");
+          navigate("/agent2");
         }
       } catch (error) {
         console.error(error);

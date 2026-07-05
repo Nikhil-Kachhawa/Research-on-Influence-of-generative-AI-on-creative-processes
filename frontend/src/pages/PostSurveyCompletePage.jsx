@@ -37,12 +37,12 @@ function PostSurveyCompletePage() {
         }
 
         if (res.data.current_role === "idea-generator") {
-          navigate("/idea-generator");
+          navigate("/agent1");
           return;
         }
 
         if (res.data.current_role === "critical-evaluator") {
-          navigate("/critical-evaluator");
+          navigate("/agent2");
           return;
         }
 

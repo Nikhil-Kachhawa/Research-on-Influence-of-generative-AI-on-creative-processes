@@ -22,7 +22,7 @@ function App() {
         />
 
         <Route
-          path="/idea-generator"
+          path="/agent1"
           element={
             <ChatPage
               role="idea-generator"
@@ -31,7 +31,7 @@ function App() {
         />
 
         <Route
-          path="/critical-evaluator"
+          path="/agent2"
           element={
             <ChatPage
               role="critical-evaluator"
