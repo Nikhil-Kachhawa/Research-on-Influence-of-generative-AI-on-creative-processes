@@ -84,7 +84,7 @@ function ChatPage({ role }) {
 
   useEffect(() => {
     document.title =
-      role === "idea-generator" ? "Idea Generator" : "Critical Evaluator";
+      role === "idea-generator" ? "Agent 1" : "Agent 2";
   }, [role]);
 
   useEffect(() => {

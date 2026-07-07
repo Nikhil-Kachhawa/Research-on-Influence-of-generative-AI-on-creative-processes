@@ -26,14 +26,14 @@
 
   "homepage": {
     "heroTitle1": "AI Support for",
-    "heroTitle2": "Creative Tasks",
-    "heroTitle3": "in Thesis Topic Development",
+    "heroTitle2": "Thesis Topic",
+    "heroTitle3": "Development",
 
-    "heroDescription": "Explore how different AI roles influence creativity, brainstorming, and critical thinking during thesis topic generation and evaluation.",
+    "heroDescription": "In this study, you will interact with AI agents while working on a possible research question for a bachelor’s or master’s thesis.",
 
     "cardTitle": "Start Research Experiment",
 
-    "cardDescription": "You are participating in a research study on AI - assisted creative thinking. Please interact with the AI as naturally as possible. There are no correct or incorrect responses, your honest interaction is what matters most.",
+    "cardDescription": "Please interact with the AI agents as naturally as possible. There are no correct or incorrect responses. Your honest interaction is what matters most.",
 
     "startButton": "Start Experiment"
   },
