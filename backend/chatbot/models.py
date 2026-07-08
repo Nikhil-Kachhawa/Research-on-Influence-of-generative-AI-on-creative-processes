@@ -158,3 +158,70 @@ class ChatMessage(models.Model):
 
     def __str__(self):
         return f"Message {self.id}"
+
+
+class ConversationAnalysis(models.Model):
+
+    session = models.OneToOneField(
+        ChatSession,
+        on_delete=models.CASCADE,
+        related_name="analysis",
+    )
+
+    participant = models.ForeignKey(
+        Participant,
+        on_delete=models.CASCADE,
+    )
+
+    agent_condition = models.ForeignKey(
+        ExperimentCondition,
+        on_delete=models.CASCADE,
+    )
+
+    role = models.CharField(
+    max_length=50,
+    )
+
+    interaction_order = models.IntegerField()
+
+    final_research_question = models.TextField()
+
+    cluster_count = models.IntegerField(default=0)
+
+    mean_ideas_per_cluster = models.FloatField(default=0)
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    def __str__(self):
+        return (
+            f"P{self.participant.participant_number:03d} - "
+            f"{self.agent_condition.name}"
+        )
+    
+
+class IdeaCluster(models.Model):
+
+    analysis = models.ForeignKey(
+        ConversationAnalysis,
+        on_delete=models.CASCADE,
+        related_name="clusters"
+    )
+
+    cluster_number = models.IntegerField()
+
+    cluster_name = models.CharField(max_length=255)
+
+    idea_count = models.IntegerField()
+
+
+class ClusterIdea(models.Model):
+
+    cluster = models.ForeignKey(
+        IdeaCluster,
+        on_delete=models.CASCADE,
+        related_name="ideas"
+    )
+
+    idea_text = models.TextField()

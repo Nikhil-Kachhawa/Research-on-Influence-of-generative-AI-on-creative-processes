@@ -39,7 +39,7 @@
 
   "chat": {
     "placeholder": "Write your message...",
-
+    "participant": "Participant ID",
     "ideaGenerator": "Agent 1",
     "criticalEvaluator": "Agent 2",
 

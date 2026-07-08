@@ -15,6 +15,8 @@ from chatbot.prompts import (
 from chatbot.services.knowledge import get_context
 from chatbot.services.llm import generate_response
 
+from chatbot.services.conversation_analysis import save_analysis
+
 from .models import (
     ChatMessage,
     ChatSession,
@@ -353,11 +355,32 @@ def finish_chat(request):
             status=404,
         )
 
+    # --------------------------------------------------
+    # CHAT 1 -> SURVEY 1
+    # --------------------------------------------------
+
     if participant.experiment_phase == "chat_1":
 
         participant.chat_1_finished_at = timezone.now()
         participant.survey_1_started_at = timezone.now()
         participant.experiment_phase = "survey_1"
+        session = (
+            ChatSession.objects.filter(
+                participant=participant,
+                condition=participant.current_condition,
+            )
+            .order_by("-created_at")
+            .first()
+        )
+
+        if session:
+            try:
+                save_analysis(session)
+            except Exception as e:
+                logger.exception(
+                    "Conversation analysis failed: %s",
+                    e,
+                )
 
         participant.save(
             update_fields=[
@@ -375,12 +398,33 @@ def finish_chat(request):
             }
         )
 
+    # --------------------------------------------------
+    # CHAT 2 -> SURVEY 2
+    # --------------------------------------------------
+
     elif participant.experiment_phase == "chat_2":
 
         participant.chat_2_finished_at = timezone.now()
         participant.survey_2_started_at = timezone.now()
         participant.experiment_phase = "survey_2"
 
+        session = (
+            ChatSession.objects.filter(
+                participant=participant,
+                condition=participant.current_condition,
+            )
+            .order_by("-created_at")
+            .first()
+        )
+
+        if session:
+            try:
+                save_analysis(session)
+            except Exception as e:
+                logger.exception(
+                    "Conversation analysis failed: %s",
+                    e,
+                )
         participant.save(
             update_fields=[
                 "chat_2_finished_at",
@@ -388,7 +432,6 @@ def finish_chat(request):
                 "experiment_phase",
             ]
         )
-
         return Response(
             {
                 "next_step": "survey_2",
@@ -397,7 +440,81 @@ def finish_chat(request):
             }
         )
 
+    # --------------------------------------------------
+    # INVALID STATE
+    # --------------------------------------------------
+
     return Response(
         {"error": "Invalid experiment state."},
         status=400,
     )
+
+
+# @api_view(["POST"])
+# def finish_chat(request):
+
+#     participant_id = request.data.get("participant_id")
+
+#     if not participant_id:
+#         return Response(
+#             {"error": "Participant ID is required."},
+#             status=400,
+#         )
+
+#     try:
+#         participant = Participant.objects.get(participant_id=participant_id)
+
+#     except Participant.DoesNotExist:
+#         return Response(
+#             {"error": "Participant not found."},
+#             status=404,
+#         )
+
+#     if participant.experiment_phase == "chat_1":
+
+#         participant.chat_1_finished_at = timezone.now()
+#         participant.survey_1_started_at = timezone.now()
+#         participant.experiment_phase = "survey_1"
+
+#         participant.save(
+#             update_fields=[
+#                 "chat_1_finished_at",
+#                 "survey_1_started_at",
+#                 "experiment_phase",
+#             ]
+#         )
+
+#         return Response(
+#             {
+#                 "next_step": "survey_1",
+#                 "participant_number": f"{participant.participant_number:03d}",
+#                 "role": participant.current_condition.name,
+#             }
+#         )
+
+#     elif participant.experiment_phase == "chat_2":
+
+#         participant.chat_2_finished_at = timezone.now()
+#         participant.survey_2_started_at = timezone.now()
+#         participant.experiment_phase = "survey_2"
+
+#         participant.save(
+#             update_fields=[
+#                 "chat_2_finished_at",
+#                 "survey_2_started_at",
+#                 "experiment_phase",
+#             ]
+#         )
+
+#         return Response(
+#             {
+#                 "next_step": "survey_2",
+#                 "participant_number": f"{participant.participant_number:03d}",
+#                 "role": participant.current_condition.name,
+#             }
+#         )
+
+#     return Response(
+#         {"error": "Invalid experiment state."},
+#         status=400,
+#     )

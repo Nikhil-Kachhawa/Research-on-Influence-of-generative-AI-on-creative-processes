@@ -34,7 +34,7 @@
 
   "chat": {
     "placeholder": "Schreiben Sie Ihre Nachricht...",
-
+    "participant": "Teilnehmer ID",
     "ideaGenerator": "Agent 1",
     "criticalEvaluator": "Agent 2",
 

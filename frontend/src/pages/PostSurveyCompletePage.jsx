@@ -42,7 +42,7 @@ function PostSurveyCompletePage() {
 
           setTimeout(() => {
             navigate("/thank-you");
-          }, 2000);
+          }, 9000);
 
           return;
         }
@@ -64,7 +64,7 @@ function PostSurveyCompletePage() {
           }
 
           navigate("/");
-        }, 2000);
+        }, 12000);
       } catch (error) {
         console.error(error);
         navigate("/");
