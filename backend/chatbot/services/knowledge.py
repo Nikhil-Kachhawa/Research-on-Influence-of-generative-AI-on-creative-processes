@@ -27,14 +27,13 @@ EXCEL_PATH = os.path.join(
 def _load_data():
     try:
         path = os.path.abspath(EXCEL_PATH)
-        profs   = pd.read_excel(path, sheet_name="professors")
-        members = pd.read_excel(path, sheet_name="team_members")
-        projects  = pd.read_excel(path, sheet_name="projects")
-        topics    = pd.read_excel(path, sheet_name="research_topics")
-        return profs, members, projects, topics
+        profs    = pd.read_excel(path, sheet_name="professors")
+        projects = pd.read_excel(path, sheet_name="projects")
+        topics   = pd.read_excel(path, sheet_name="research_topics")
+        return profs, projects, topics
     except Exception:
         logger.exception("Failed to load university_data.xlsx")
-        return None, None, None, None
+        return None, None, None
 
 
 # ── Text normalisation helpers ───────────────────────────────────────────────
@@ -80,20 +79,6 @@ def _format_professors(df: pd.DataFrame, n: int) -> str:
     return "\n".join(lines)
 
 
-def _format_members(df: pd.DataFrame, n: int) -> str:
-    lines = []
-    for _, row in df.head(n).iterrows():
-        name   = row.get("name", "")
-        role   = row.get("role", "")
-        sup    = row.get("supervisor_professor", "")
-        inst   = row.get("institute", "")
-        focus  = row.get("research_focus", "")
-        lines.append(f"• {name} — {role}, {inst}" + (f" (supervisor: {sup})" if sup else ""))
-        if focus:
-            lines.append(f"  Focus: {focus}")
-    return "\n".join(lines)
-
-
 def _format_projects(df: pd.DataFrame, n: int) -> str:
     lines = []
     for _, row in df.head(n).iterrows():
@@ -124,12 +109,8 @@ def _format_topics(df: pd.DataFrame, n: int) -> str:
 # ── Public API ───────────────────────────────────────────────────────────────
 
 def get_context(query: str, max_items_per_section: int = 3) -> str:
-    """
-    Return a formatted context string (or empty string on failure) based on
-    keyword overlap between *query* and each Excel sheet.
-    """
     try:
-        profs, members, projects, topics = _load_data()
+        profs, projects, topics = _load_data()
         if profs is None:
             return ""
 
@@ -162,14 +143,6 @@ def get_context(query: str, max_items_per_section: int = 3) -> str:
         if not pr_df.empty:
             parts.append("**Related Faculty Members:**\n"
                          + _format_professors(pr_df, max_items_per_section))
-
-        # Team members (postdocs / doctoral candidates)
-        m_df = _score_rows(members, query_tokens,
-                           ["name", "research_focus", "role",
-                            "supervisor_professor", "institute"])
-        if not m_df.empty:
-            parts.append("**Related Researchers / Doctoral Candidates:**\n"
-                         + _format_members(m_df, max_items_per_section))
 
         return "\n\n".join(parts)
 

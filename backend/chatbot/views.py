@@ -59,6 +59,7 @@ def start_experiment(request):
         second_condition=second_condition,
         current_condition=first_condition,
         experiment_phase="chat_1",
+        chat_1_started_at=timezone.now(),
     )
 
     session = ChatSession.objects.create(
@@ -102,9 +103,20 @@ def continue_experiment(request):
     # -----------------------------
     if participant.experiment_phase == "survey_1":
 
+        participant.survey_1_finished_at = timezone.now()
+        participant.chat_2_started_at = timezone.now()
+
         participant.current_condition = participant.second_condition
         participant.experiment_phase = "chat_2"
-        participant.save()
+
+        participant.save(
+            update_fields=[
+                "survey_1_finished_at",
+                "chat_2_started_at",
+                "current_condition",
+                "experiment_phase",
+            ]
+        )
         session = ChatSession.objects.create(
             participant=participant,
             condition=participant.current_condition,
@@ -137,9 +149,17 @@ def continue_experiment(request):
     # -----------------------------
     if participant.experiment_phase == "survey_2":
 
-        participant.experiment_phase = "completed"
+        participant.survey_2_finished_at = timezone.now()
         participant.finished_at = timezone.now()
-        participant.save()
+        participant.experiment_phase = "completed"
+
+        participant.save(
+            update_fields=[
+                "survey_2_finished_at",
+                "finished_at",
+                "experiment_phase",
+            ]
+        )
 
         return Response({"status": "completed"})
 
@@ -270,6 +290,16 @@ def chat(request):
     else:
         system_content = base_prompt
 
+    system_content += (
+        "\n\n=== LANGUAGE (ABSOLUTE, HIGHEST PRIORITY) ===\n"
+        "Detect the language of the user's MOST RECENT message below and "
+        "respond ENTIRELY in that language — every heading, bullet, and "
+        "word. The research context above this line is written in English; "
+        "if you use any information from it, TRANSLATE it into the user's "
+        "language. Never quote that context in English. The only exception "
+        "is proper names (people, projects, places), which stay as written."
+    )
+
     messages = [{"role": "system", "content": system_content}]
 
     for msg in previous_messages:
@@ -325,8 +355,17 @@ def finish_chat(request):
 
     if participant.experiment_phase == "chat_1":
 
+        participant.chat_1_finished_at = timezone.now()
+        participant.survey_1_started_at = timezone.now()
         participant.experiment_phase = "survey_1"
-        participant.save()
+
+        participant.save(
+            update_fields=[
+                "chat_1_finished_at",
+                "survey_1_started_at",
+                "experiment_phase",
+            ]
+        )
 
         return Response(
             {
@@ -338,8 +377,17 @@ def finish_chat(request):
 
     elif participant.experiment_phase == "chat_2":
 
+        participant.chat_2_finished_at = timezone.now()
+        participant.survey_2_started_at = timezone.now()
         participant.experiment_phase = "survey_2"
-        participant.save()
+
+        participant.save(
+            update_fields=[
+                "chat_2_finished_at",
+                "survey_2_started_at",
+                "experiment_phase",
+            ]
+        )
 
         return Response(
             {

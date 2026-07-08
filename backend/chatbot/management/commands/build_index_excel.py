@@ -14,7 +14,7 @@ def _safe(val) -> str:
     return str(val).strip() if val is not None and str(val) != "nan" else ""
 
 
-def build_chunks(profs, members, projects, topics):
+def build_chunks(profs, projects, topics):
     """
     Convert every Excel row into a plain-text chunk plus metadata dict.
     Each chunk is self-contained so the LLM can read it without context.
@@ -42,24 +42,6 @@ def build_chunks(profs, members, projects, topics):
             "name":      _safe(row.get("name")),
         })
         ids.append(f"prof_{idx}")
-        idx += 1
-
-    # ── Team members (postdocs / PhD students) ───────────────────
-    for _, row in members.iterrows():
-        text = (
-            f"[RESEARCHER] {_safe(row.get('name'))} | "
-            f"Role: {_safe(row.get('role'))} | "
-            f"Institute: {_safe(row.get('institute'))} | "
-            f"Supervisor: {_safe(row.get('supervisor_professor'))}\n"
-            f"Research Focus: {_safe(row.get('research_focus'))}"
-        )
-        chunks.append(text)
-        metas.append({
-            "source":    "team_members",
-            "institute": _safe(row.get("institute")),
-            "name":      _safe(row.get("name")),
-        })
-        ids.append(f"mem_{idx}")
         idx += 1
 
     # ── Projects ─────────────────────────────────────────────────
@@ -114,14 +96,13 @@ class Command(BaseCommand):
             return
 
         self.stdout.write("Reading Excel...")
-        profs   = pd.read_excel(EXCEL_PATH, sheet_name="professors")
-        members = pd.read_excel(EXCEL_PATH, sheet_name="team_members")
-        projects  = pd.read_excel(EXCEL_PATH, sheet_name="projects")
-        topics    = pd.read_excel(EXCEL_PATH, sheet_name="research_topics")
+        profs    = pd.read_excel(EXCEL_PATH, sheet_name="professors")
+        projects = pd.read_excel(EXCEL_PATH, sheet_name="projects")
+        topics   = pd.read_excel(EXCEL_PATH, sheet_name="research_topics")
 
-        chunks, metas, ids = build_chunks(profs, members, projects, topics)
+        chunks, metas, ids = build_chunks(profs, projects, topics)
         self.stdout.write(f"Built {len(chunks)} chunks from Excel "
-                          f"({len(profs)} professors, {len(members)} researchers, "
+                          f"({len(profs)} professors, "
                           f"{len(projects)} projects, {len(topics)} topics)")
 
         self.stdout.write("Loading embedding model (downloads once ~22 MB)...")

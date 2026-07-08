@@ -1,5 +1,4 @@
 {
-
   "common": {
     "home": "Home",
     "english": "English",
@@ -50,9 +49,9 @@
 
   "finish": {
     "button": "Finish Chat",
-    "title": "Finish Chat",
+    "title": "⚠️ Attention ⚠️",
     "message": "Are you sure you want to finish this chat? You cannot continue after proceeding.",
-    "redirectMessage": "You will be redirected to the post-survey questionnaire. After proceeding, you will not be able to continue this chat session.",
+    "redirectMessage": "Before proceeding, please make sure you remember your final research question. In the next survey, you will be asked to enter your final research question before continuing. Once you proceed, you will not be able to return to this chat session.",
     "cancel": "Continue Chat",
     "confirm": "Proceed to Survey"
   },
@@ -62,13 +61,21 @@
   },
 
   "thankYou": {
-    "title": "Thank You",
-    "message": "Thank you for participating in our research study."
+    "title": "Thank You!",
+    "message": "Thank you for participating in our research study.",
+    "footer": "The interview will follow shortly."
   },
 
   "continueExperiment": {
-    "title": "Preparing the next step...",
-    "message": "Please wait while your experiment is continued."
+    "title": "Part 2 of the Experiment",
+    "message": "You have successfully completed the first part of the experiment. Next, you will interact with a second AI agent. Please continue the discussion naturally, just as you did in the first part.",
+    "loading": "Preparing the next chat..."
+  },
+
+  "experimentComplete": {
+    "title": "Finalizing the Experiment",
+    "message": "Thank you for completing the experiment. Your responses are being saved. You will be redirected to the final page shortly.",
+    "loading": "Finalizing..."
   },
 
   "errors": {

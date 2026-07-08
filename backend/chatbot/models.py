@@ -22,6 +22,18 @@ class Participant(models.Model):
         ("completed", "Completed"),
     ]
 
+    chat_1_started_at = models.DateTimeField(null=True, blank=True)
+    chat_1_finished_at = models.DateTimeField(null=True, blank=True)
+
+    survey_1_started_at = models.DateTimeField(null=True, blank=True)
+    survey_1_finished_at = models.DateTimeField(null=True, blank=True)
+
+    chat_2_started_at = models.DateTimeField(null=True, blank=True)
+    chat_2_finished_at = models.DateTimeField(null=True, blank=True)
+
+    survey_2_started_at = models.DateTimeField(null=True, blank=True)
+    survey_2_finished_at = models.DateTimeField(null=True, blank=True)
+
     participant_id = models.UUIDField(
         default=uuid.uuid4,
         editable=False,

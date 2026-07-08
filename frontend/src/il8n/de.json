@@ -19,15 +19,15 @@
   },
 
   "homepage": {
-    "heroTitle1": "KI-Unterstützung für",
-    "heroTitle2": "Kreative Aufgaben",
-    "heroTitle3": "bei der Entwicklung von Abschlussarbeitsthemen",
+    "heroTitle1": "KI-Unterstützung bei der Entwicklung von",
+    "heroTitle2": "Abschlussarbeitsthemen",
+    "heroTitle3": " ",
 
-    "heroDescription": "Untersuchen Sie, wie unterschiedliche KI-Rollen Kreativität, Brainstorming und kritisches Denken bei der Entwicklung und Bewertung von Abschlussarbeitsthemen beeinflussen.",
+    "heroDescription": "In dieser Studie interagieren Sie mit KI-Agenten, während Sie an einer möglichen Forschungsfrage für eine Bachelor- oder Masterarbeit arbeiten.",
 
     "cardTitle": "Forschungsexperiment starten",
 
-    "cardDescription": "Sie nehmen an einer Forschungsstudie zum KI-gestützten kreativen Denken teil. Bitte interagieren Sie so natürlich wie möglich mit der KI. Es gibt keine richtigen oder falschen Antworten. Ihre ehrliche und natürliche Interaktion ist für diese Studie am wichtigsten.",
+    "cardDescription": "Bitte interagieren Sie so natürlich wie möglich mit den KI-Agenten. Es gibt keine richtigen oder falschen Antworten. Ihre ehrliche und natürliche Interaktion ist für diese Studie am wichtigsten.",
 
     "startButton": "Experiment starten"
   },
@@ -44,9 +44,9 @@
 
   "finish": {
     "button": "Chat beenden",
-    "title": "Chat beenden",
+    "title": "⚠️ Warnung ⚠️",
     "message": "Möchten Sie diesen Chat wirklich beenden? Danach können Sie den Chat nicht mehr fortsetzen.",
-    "redirectMessage": "Sie werden zum Fragebogen nach dem Experiment weitergeleitet. Danach können Sie diese Chatsitzung nicht mehr fortsetzen.",
+    "redirectMessage": "Bitte stellen Sie sicher, dass Sie sich an Ihre endgültige Forschungsfrage erinnern. Im nächsten Fragebogen werden Sie aufgefordert, diese Forschungsfrage einzugeben. Nachdem Sie fortfahren, können Sie nicht mehr zu dieser Chatsitzung zurückkehren.",
     "cancel": "Chat fortsetzen",
     "confirm": "Zur Umfrage"
   },
@@ -56,9 +56,10 @@
   },
 
   "thankYou": {
-    "title": "Vielen Dank",
-    "message": "Vielen Dank für Ihre Teilnahme an unserer Forschungsstudie."
-  },
+  "title": "Vielen Dank!",
+  "message": "Vielen Dank für Ihre Teilnahme an unserer Forschungsstudie.",
+  "footer": "Das Interview findet im Anschluss statt."
+},
 
   "survey": {
     "redirecting": "Weiterleitung zur Umfrage...",
@@ -66,8 +67,15 @@
   },
 
   "continueExperiment": {
-    "title": "Der nächste Schritt wird vorbereitet...",
-    "message": "Bitte warten Sie, während Ihr Experiment fortgesetzt wird."
+    "title": "Teil 2 des Experiments",
+    "message": "Sie haben den ersten Teil des Experiments erfolgreich abgeschlossen. Im nächsten Schritt interagieren Sie mit einem zweiten KI-Agenten. Bitte setzen Sie die Unterhaltung genauso natürlich fort wie im ersten Teil.",
+    "loading": "Der nächste Chat wird vorbereitet..."
+  },
+
+  "experimentComplete": {
+    "title": "Experiment wird abgeschlossen",
+    "message": "Vielen Dank für Ihre Teilnahme am Experiment. Ihre Antworten werden gespeichert. Sie werden in Kürze zur Abschlussseite weitergeleitet.",
+    "loading": "Experiment wird abgeschlossen..."
   },
 
   "errors": {

@@ -354,7 +354,7 @@ function ChatPage({ role }) {
             <h2 className="text-2xl font-bold mb-4">{t("finish.title")}</h2>
 
             <p
-              className={`mb-6 ${darkMode ? "text-gray-300" : "text-gray-600"}`}
+              className={`mb-6 ${darkMode ? "text-red-300" : "text-red-600"}`}
             >
               {t("finish.redirectMessage")}
             </p>
