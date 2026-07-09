@@ -377,10 +377,9 @@ def finish_chat(request):
             try:
                 save_analysis(session)
             except Exception as e:
-                logger.exception(
-                    "Conversation analysis failed: %s",
-                    e,
-                )
+                import traceback
+                traceback.print_exc()
+                raise
 
         participant.save(
             update_fields=[
@@ -421,10 +420,9 @@ def finish_chat(request):
             try:
                 save_analysis(session)
             except Exception as e:
-                logger.exception(
-                    "Conversation analysis failed: %s",
-                    e,
-                )
+                import traceback
+                traceback.print_exc()
+                raise
         participant.save(
             update_fields=[
                 "chat_2_finished_at",

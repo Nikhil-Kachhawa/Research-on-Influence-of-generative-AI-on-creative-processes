@@ -128,7 +128,12 @@ def analyze_session(session):
 
     print(response)
 
-    data = json.loads(response)
+    try:
+        data = json.loads(response)
+    except Exception as e:
+        print("JSON ERROR")
+        print(response)
+        raise
 
     return data
 
@@ -188,7 +193,15 @@ def save_analysis(session):
         session=session
     ).delete()
 
+    print("=" * 80)
+    print(f"Starting analysis for session {session.id}")
+    print(f"Participant: {session.participant.participant_number}")
+    print(f"Role: {session.condition.name}")
+
     data = analyze_session(session)
+
+    print("Analysis completed successfully")
+    print("=" * 80)
 
     clusters = data.get("clusters", [])
 
@@ -228,7 +241,15 @@ def save_analysis(session):
 
     for index, cluster_data in enumerate(clusters, start=1):
 
-        cluster_name = cluster_data["cluster_name"]
+        print(f"Saving cluster {index}")
+        print(f"Cluster name from LLM: {cluster_data['cluster_name']}")
+        print(f"Ideas: {cluster_data['ideas']}")
+
+        cluster_name = generate_cluster_name(
+        cluster_data["ideas"]
+        )
+
+        print(f"Generated short name: {cluster_name}")
 
         cluster = IdeaCluster.objects.create(
             analysis=analysis,
@@ -237,11 +258,17 @@ def save_analysis(session):
             idea_count=len(cluster_data["ideas"]),
         )
 
+        print(f"Cluster {index} saved with database ID: {cluster.id}")
+
         for idea in cluster_data["ideas"]:
+
+            print(f"Saving idea: {idea}")
 
             ClusterIdea.objects.create(
                 cluster=cluster,
                 idea_text=idea,
             )
+
+            print("Idea saved successfully.")
 
     return analysis
