@@ -15,7 +15,8 @@ from chatbot.prompts import (
 from chatbot.services.knowledge import get_context
 from chatbot.services.llm import generate_response
 
-from chatbot.services.conversation_analysis import save_analysis
+########################################## IDEA CLUSTER ####################################
+# from chatbot.services.conversation_analysis import save_analysis
 
 from .models import (
     ChatMessage,
@@ -355,31 +356,11 @@ def finish_chat(request):
             status=404,
         )
 
-    # --------------------------------------------------
-    # CHAT 1 -> SURVEY 1
-    # --------------------------------------------------
-
     if participant.experiment_phase == "chat_1":
 
         participant.chat_1_finished_at = timezone.now()
         participant.survey_1_started_at = timezone.now()
         participant.experiment_phase = "survey_1"
-        session = (
-            ChatSession.objects.filter(
-                participant=participant,
-                condition=participant.current_condition,
-            )
-            .order_by("-created_at")
-            .first()
-        )
-
-        if session:
-            try:
-                save_analysis(session)
-            except Exception as e:
-                import traceback
-                traceback.print_exc()
-                raise
 
         participant.save(
             update_fields=[
@@ -397,32 +378,12 @@ def finish_chat(request):
             }
         )
 
-    # --------------------------------------------------
-    # CHAT 2 -> SURVEY 2
-    # --------------------------------------------------
-
     elif participant.experiment_phase == "chat_2":
 
         participant.chat_2_finished_at = timezone.now()
         participant.survey_2_started_at = timezone.now()
         participant.experiment_phase = "survey_2"
 
-        session = (
-            ChatSession.objects.filter(
-                participant=participant,
-                condition=participant.current_condition,
-            )
-            .order_by("-created_at")
-            .first()
-        )
-
-        if session:
-            try:
-                save_analysis(session)
-            except Exception as e:
-                import traceback
-                traceback.print_exc()
-                raise
         participant.save(
             update_fields=[
                 "chat_2_finished_at",
@@ -430,6 +391,7 @@ def finish_chat(request):
                 "experiment_phase",
             ]
         )
+
         return Response(
             {
                 "next_step": "survey_2",
@@ -438,16 +400,13 @@ def finish_chat(request):
             }
         )
 
-    # --------------------------------------------------
-    # INVALID STATE
-    # --------------------------------------------------
-
     return Response(
         {"error": "Invalid experiment state."},
         status=400,
     )
 
 
+########################################## IDEA CLUSTER ####################################
 # @api_view(["POST"])
 # def finish_chat(request):
 
@@ -468,11 +427,31 @@ def finish_chat(request):
 #             status=404,
 #         )
 
+#     # --------------------------------------------------
+#     # CHAT 1 -> SURVEY 1
+#     # --------------------------------------------------
+
 #     if participant.experiment_phase == "chat_1":
 
 #         participant.chat_1_finished_at = timezone.now()
 #         participant.survey_1_started_at = timezone.now()
 #         participant.experiment_phase = "survey_1"
+#         session = (
+#             ChatSession.objects.filter(
+#                 participant=participant,
+#                 condition=participant.current_condition,
+#             )
+#             .order_by("-created_at")
+#             .first()
+#         )
+
+#         if session:
+#             try:
+#                 save_analysis(session)
+#             except Exception as e:
+#                 import traceback
+#                 traceback.print_exc()
+#                 raise
 
 #         participant.save(
 #             update_fields=[
@@ -490,12 +469,32 @@ def finish_chat(request):
 #             }
 #         )
 
+#     # --------------------------------------------------
+#     # CHAT 2 -> SURVEY 2
+#     # --------------------------------------------------
+
 #     elif participant.experiment_phase == "chat_2":
 
 #         participant.chat_2_finished_at = timezone.now()
 #         participant.survey_2_started_at = timezone.now()
 #         participant.experiment_phase = "survey_2"
 
+#         session = (
+#             ChatSession.objects.filter(
+#                 participant=participant,
+#                 condition=participant.current_condition,
+#             )
+#             .order_by("-created_at")
+#             .first()
+#         )
+
+#         if session:
+#             try:
+#                 save_analysis(session)
+#             except Exception as e:
+#                 import traceback
+#                 traceback.print_exc()
+#                 raise
 #         participant.save(
 #             update_fields=[
 #                 "chat_2_finished_at",
@@ -503,7 +502,6 @@ def finish_chat(request):
 #                 "experiment_phase",
 #             ]
 #         )
-
 #         return Response(
 #             {
 #                 "next_step": "survey_2",
@@ -512,7 +510,13 @@ def finish_chat(request):
 #             }
 #         )
 
+#     # --------------------------------------------------
+#     # INVALID STATE
+#     # --------------------------------------------------
+
 #     return Response(
 #         {"error": "Invalid experiment state."},
 #         status=400,
 #     )
+
+
