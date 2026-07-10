@@ -1,3 +1,4 @@
+import { useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 function ChatInput({
@@ -8,6 +9,13 @@ function ChatInput({
   darkMode,
 }) {
   const { t } = useTranslation();
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (!loading) {
+      inputRef.current?.focus();
+    }
+  }, [loading]);
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !loading) {
@@ -16,16 +24,11 @@ function ChatInput({
   };
 
   return (
-    <div
-      className={`border-t p-4 ${
-        darkMode
-          ? "border-gray-800"
-          : "border-red-100"
-      }`}
-    >
+    <div className={`border-t p-4 ${darkMode ? "border-gray-800" : "border-red-100"}`}>
       <div className="flex gap-3">
 
         <input
+          ref={inputRef}
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -36,11 +39,7 @@ function ChatInput({
             darkMode
               ? "bg-[#0B1020] border-gray-700 focus:border-red-500"
               : "bg-gray-50 border-gray-300 focus:border-red-500"
-          } ${
-            loading
-              ? "opacity-70 cursor-not-allowed"
-              : ""
-          }`}
+          } ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
         />
 
         <button
