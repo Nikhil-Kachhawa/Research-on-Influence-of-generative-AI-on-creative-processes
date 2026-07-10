@@ -88,6 +88,22 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+#dev
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": os.getenv("DB_NAME"),
+#         "USER": os.getenv("DB_USER"),
+#         "PASSWORD": os.getenv("DB_PASSWORD"),
+#         "HOST": os.getenv("DB_HOST"),
+#         "PORT": os.getenv("DB_PORT"),
+#     },
+#     "OPTIONS": {
+#         "options": "-c timezone=Europe/Berlin",
+#     },
+# }
+
+#prod
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -96,10 +112,12 @@ DATABASES = {
         "PASSWORD": os.getenv("DB_PASSWORD"),
         "HOST": os.getenv("DB_HOST"),
         "PORT": os.getenv("DB_PORT"),
-    },
-    "OPTIONS": {
+        "OPTIONS": {
         "options": "-c timezone=Europe/Berlin",
+        "sslmode": os.getenv("DB_SSLMODE", "disable"),
     },
+    },
+   
 }
 
 

@@ -4,7 +4,9 @@ import chromadb
 from sentence_transformers import SentenceTransformer
 from django.core.management.base import BaseCommand
 
-EXCEL_PATH = os.path.join("chatbot", "rag_data", "university_data.xlsx")
+# Bilingual Excel files
+EXCEL_PATH_EN = os.path.join("chatbot", "rag_data", "university_data.xlsx")
+EXCEL_PATH_DE = os.path.join("chatbot", "rag_data", "university_data_de.xlsx")
 STORE_PATH = os.path.join("chatbot", "vector_store")
 COLLECTION = "uni_koblenz_research"
 
@@ -89,24 +91,50 @@ class Command(BaseCommand):
     help = "Build ChromaDB vector index from university_data.xlsx"
 
     def handle(self, *args, **options):
-        if not os.path.exists(EXCEL_PATH):
-            self.stdout.write(self.style.ERROR(
-                f"Excel file not found at {EXCEL_PATH}"
-            ))
+        # Read both English and German Excel files
+        excel_files = [
+            ("English", EXCEL_PATH_EN),
+            ("German", EXCEL_PATH_DE),
+        ]
+
+        all_chunks, all_metas, all_ids = [], [], []
+        idx = 0
+
+        for lang_name, excel_path in excel_files:
+            if not os.path.exists(excel_path):
+                self.stdout.write(self.style.WARNING(
+                    f"{lang_name} Excel file not found at {excel_path}"
+                ))
+                continue
+
+            self.stdout.write(f"Reading {lang_name} Excel...")
+            profs    = pd.read_excel(excel_path, sheet_name="professors")
+            projects = pd.read_excel(excel_path, sheet_name="projects")
+            topics   = pd.read_excel(excel_path, sheet_name="research_topics")
+
+            chunks, metas, ids = build_chunks(profs, projects, topics)
+
+            # Add language tag to metadata so we know which language each chunk is
+            for meta in metas:
+                meta["language"] = lang_name.lower()
+
+            # Offset IDs to avoid collision between English and German
+            offset_ids = [f"{lang_name[0].lower()}_{id_}" for id_ in ids]
+
+            all_chunks.extend(chunks)
+            all_metas.extend(metas)
+            all_ids.extend(offset_ids)
+            idx += len(chunks)
+
+        if not all_chunks:
+            self.stdout.write(self.style.ERROR("No chunks built from Excel files"))
             return
 
-        self.stdout.write("Reading Excel...")
-        profs    = pd.read_excel(EXCEL_PATH, sheet_name="professors")
-        projects = pd.read_excel(EXCEL_PATH, sheet_name="projects")
-        topics   = pd.read_excel(EXCEL_PATH, sheet_name="research_topics")
+        self.stdout.write(f"Built {len(all_chunks)} total chunks "
+                          f"(English + German combined)")
 
-        chunks, metas, ids = build_chunks(profs, projects, topics)
-        self.stdout.write(f"Built {len(chunks)} chunks from Excel "
-                          f"({len(profs)} professors, "
-                          f"{len(projects)} projects, {len(topics)} topics)")
-
-        self.stdout.write("Loading embedding model (downloads once ~22 MB)...")
-        model = SentenceTransformer("all-MiniLM-L6-v2")
+        self.stdout.write("Loading multilingual embedding model (downloads once ~110 MB)...")
+        model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
 
         os.makedirs(STORE_PATH, exist_ok=True)
         db = chromadb.PersistentClient(path=STORE_PATH)
@@ -117,11 +145,11 @@ class Command(BaseCommand):
             pass
         collection = db.create_collection(COLLECTION)
 
-        self.stdout.write(f"Embedding {len(chunks)} chunks...")
-        vectors = model.encode(chunks, show_progress_bar=True).tolist()
+        self.stdout.write(f"Embedding {len(all_chunks)} chunks with multilingual model...")
+        vectors = model.encode(all_chunks, show_progress_bar=True).tolist()
 
-        collection.add(ids=ids, documents=chunks, embeddings=vectors, metadatas=metas)
+        collection.add(ids=all_ids, documents=all_chunks, embeddings=vectors, metadatas=all_metas)
 
         self.stdout.write(self.style.SUCCESS(
-            f"Done. {len(chunks)} chunks stored in ChromaDB collection '{COLLECTION}'."
+            f"Done. {len(all_chunks)} chunks (EN + DE) stored in ChromaDB collection '{COLLECTION}'."
         ))

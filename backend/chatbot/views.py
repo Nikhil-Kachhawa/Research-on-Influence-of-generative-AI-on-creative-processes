@@ -273,7 +273,19 @@ def chat(request):
         "created_at"
     )
 
-    context = get_context(user_message)
+    # from the user message. German text contains äöüß or common German words.
+
+    language = request.data.get("language", "").lower()[:2] 
+    if not language: 
+
+        # Auto-detect: if message contains German characters or common German words 
+
+        user_msg_lower = user_message.lower() 
+        german_indicators = {"äöüß", "der ", "die ", "das ", "und ", "ich ",  "mich ", "mir "} 
+        has_german = any(ind in user_msg_lower for ind in german_indicators) 
+        language = "de" if has_german else "en" 
+        
+    context = get_context(user_message, language=language)
 
     base_prompt = (
         IDEA_GENERATOR_PROMPT if role == "idea-generator" else CRITICAL_EVALUATOR_PROMPT

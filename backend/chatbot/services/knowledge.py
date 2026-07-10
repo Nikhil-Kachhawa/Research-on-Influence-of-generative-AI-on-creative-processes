@@ -1,9 +1,14 @@
 """
 Excel-based knowledge retrieval for WeST / FB4 university data.
 
+Supports bilingual setup: separate Excel files for English and German.
+- university_data.xlsx (English)
+- university_data_de.xlsx (German)
+
 Usage:
     from chatbot.services.knowledge import get_context
-    snippet = get_context("What projects are about knowledge graphs?")
+    snippet = get_context("What projects are about knowledge graphs?", language="en")
+    snippet_de = get_context("Welche Projekte behandeln Wissensgraphen?", language="de")
 
 Retrieval strategy: keyword overlap between query tokens and indexed text rows.
 No ML model needed — fast, transparent, and fully offline.
@@ -17,22 +22,33 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
-EXCEL_PATH = os.path.join(
+# Bilingual Excel files
+EXCEL_PATH_EN = os.path.join(
     os.path.dirname(__file__), "..", "rag_data", "university_data.xlsx"
 )
+EXCEL_PATH_DE = os.path.join(
+    os.path.dirname(__file__), "..", "rag_data", "university_data_de.xlsx"
+)
 
-# ── Data loading (cached at module level) ────────────────────────────────────
+# ── Data loading (cached per language) ────────────────────────────────────
 
-@lru_cache(maxsize=1)
-def _load_data():
+@lru_cache(maxsize=2)
+def _load_data(language: str = "en"):
+    """Load Excel file for the specified language (en or de)."""
     try:
-        path = os.path.abspath(EXCEL_PATH)
+        excel_path = EXCEL_PATH_DE if language == "de" else EXCEL_PATH_EN
+        path = os.path.abspath(excel_path)
+
+        if not os.path.exists(path):
+            logger.warning(f"Knowledge base not found for language {language}: {path}")
+            return None, None, None
+
         profs    = pd.read_excel(path, sheet_name="professors")
         projects = pd.read_excel(path, sheet_name="projects")
         topics   = pd.read_excel(path, sheet_name="research_topics")
         return profs, projects, topics
     except Exception:
-        logger.exception("Failed to load university_data.xlsx")
+        logger.exception(f"Failed to load university_data for language {language}")
         return None, None, None
 
 
@@ -108,9 +124,23 @@ def _format_topics(df: pd.DataFrame, n: int) -> str:
 
 # ── Public API ───────────────────────────────────────────────────────────────
 
-def get_context(query: str, max_items_per_section: int = 3) -> str:
+def get_context(query: str, max_items_per_section: int = 3, language: str = "en") -> str:
+    """
+    Retrieve university context for RAG grounding.
+
+    Args:
+        query: User question/message
+        max_items_per_section: How many results per category
+        language: "de" for German, "en" for English (default)
+
+    Returns:
+        Formatted markdown snippet for prompt injection, or empty string if no match.
+
+    Loads the appropriate language-specific Excel file (university_data.xlsx or
+    university_data_de.xlsx) and searches it with the same column names.
+    """
     try:
-        profs, projects, topics = _load_data()
+        profs, projects, topics = _load_data(language=language)
         if profs is None:
             return ""
 
@@ -118,31 +148,44 @@ def get_context(query: str, max_items_per_section: int = 3) -> str:
         if not query_tokens:
             return ""
 
+        # Standard columns (same in both EN and DE files)
+        topic_cols = ["topic_title", "description", "keywords",
+                      "professor_name", "institute"]
+        project_cols = ["project_name", "description", "keywords",
+                        "professor_name", "institute"]
+        prof_cols = ["name", "research_area", "position_chair",
+                     "institute", "notes"]
+
+        # Filter to only columns that exist
+        topic_cols = [c for c in topic_cols if c in topics.columns]
+        project_cols = [c for c in project_cols if c in projects.columns]
+        prof_cols = [c for c in prof_cols if c in profs.columns]
+
         parts = []
 
         # Research topics — highest priority for thesis ideas
-        t_df = _score_rows(topics, query_tokens,
-                           ["topic_title", "description", "keywords",
-                            "professor_name", "institute"])
+        t_df = _score_rows(topics, query_tokens, topic_cols)
         if not t_df.empty:
-            parts.append("**Relevant Research Topics at the University:**\n"
-                         + _format_topics(t_df, max_items_per_section))
+            header = ("**Relevante Forschungsthemen der Universität:**"
+                      if language == "de"
+                      else "**Relevant Research Topics at the University:**")
+            parts.append(header + "\n" + _format_topics(t_df, max_items_per_section))
 
         # Projects
-        p_df = _score_rows(projects, query_tokens,
-                           ["project_name", "description", "keywords",
-                            "professor_name", "institute"])
+        p_df = _score_rows(projects, query_tokens, project_cols)
         if not p_df.empty:
-            parts.append("**Relevant Research Projects:**\n"
-                         + _format_projects(p_df, max_items_per_section))
+            header = ("**Aktuelle Forschungsprojekte:**"
+                      if language == "de"
+                      else "**Relevant Research Projects:**")
+            parts.append(header + "\n" + _format_projects(p_df, max_items_per_section))
 
         # Professors
-        pr_df = _score_rows(profs, query_tokens,
-                            ["name", "research_area", "position_chair",
-                             "institute", "notes"])
+        pr_df = _score_rows(profs, query_tokens, prof_cols)
         if not pr_df.empty:
-            parts.append("**Related Faculty Members:**\n"
-                         + _format_professors(pr_df, max_items_per_section))
+            header = ("**Verwandte Fakultätsmitglieder:**"
+                      if language == "de"
+                      else "**Related Faculty Members:**")
+            parts.append(header + "\n" + _format_professors(pr_df, max_items_per_section))
 
         return "\n\n".join(parts)
 
