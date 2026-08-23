@@ -159,70 +159,154 @@ class ChatMessage(models.Model):
     def __str__(self):
         return f"Message {self.id}"
 
-########################################## IDEA CLUSTER ####################################
 
-# class ConversationAnalysis(models.Model):
 
-#     session = models.OneToOneField(
-#         ChatSession,
-#         on_delete=models.CASCADE,
-#         related_name="analysis",
-#     )
+class ExtractedIdea(models.Model):
 
-#     participant = models.ForeignKey(
-#         Participant,
-#         on_delete=models.CASCADE,
-#     )
+    participant = models.ForeignKey(
+        Participant,
+        on_delete=models.CASCADE,
+        related_name="extracted_ideas",
+    )
 
-#     agent_condition = models.ForeignKey(
-#         ExperimentCondition,
-#         on_delete=models.CASCADE,
-#     )
+    session = models.ForeignKey(
+        ChatSession,
+        on_delete=models.CASCADE,
+        related_name="extracted_ideas",
+    )
 
-#     role = models.CharField(
-#     max_length=50,
-#     )
+    agent_condition = models.ForeignKey(
+        ExperimentCondition,
+        on_delete=models.CASCADE,
+    )
 
-#     interaction_order = models.IntegerField()
+    interaction_order = models.IntegerField()
 
-#     final_research_question = models.TextField()
+    idea_text = models.TextField()
 
-#     cluster_count = models.IntegerField(default=0)
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
 
-#     mean_ideas_per_cluster = models.FloatField(default=0)
+    def __str__(self):
+        return (
+            f"P{self.participant.participant_number:03d} - "
+            f"{self.idea_text[:50]}"
+        )
 
-#     created_at = models.DateTimeField(
-#         auto_now_add=True,
-#     )
 
-#     def __str__(self):
-#         return (
-#             f"P{self.participant.participant_number:03d} - "
-#             f"{self.agent_condition.name}"
-#         )
+
+class ConversationAnalysis(models.Model):
+
+    session = models.OneToOneField(
+        ChatSession,
+        on_delete=models.CASCADE,
+        related_name="analysis",
+    )
+
+    participant = models.ForeignKey(
+        Participant,
+        on_delete=models.CASCADE,
+    )
+
+    agent_condition = models.ForeignKey(
+        ExperimentCondition,
+        on_delete=models.CASCADE,
+    )
+
+    role = models.CharField(
+    max_length=50,
+    )
+
+    interaction_order = models.IntegerField()
+
+    final_research_question = models.TextField()
+
+    cluster_count = models.IntegerField(default=0)
+
+    mean_ideas_per_cluster = models.FloatField(default=0)
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    def __str__(self):
+        return (
+            f"P{self.participant.participant_number:03d} - "
+            f"{self.agent_condition.name}"
+        )
     
 
-# class IdeaCluster(models.Model):
+class IdeaCluster(models.Model):
 
-#     analysis = models.ForeignKey(
-#         ConversationAnalysis,
-#         on_delete=models.CASCADE,
-#         related_name="clusters"
-#     )
+    analysis = models.ForeignKey(
+        ConversationAnalysis,
+        on_delete=models.CASCADE,
+        related_name="clusters",
+    )
 
-#     cluster_number = models.IntegerField()
+    cluster_number = models.IntegerField()
 
-#     cluster_name = models.CharField(max_length=255)
+    cluster_name = models.CharField(
+        max_length=255,
+    )
 
-#     idea_count = models.IntegerField()
+    cluster_reason = models.TextField(
+        blank=True,
+        default="",
+    )
+
+    idea_count = models.IntegerField(
+        default=0,
+    )
+
+    human_verified = models.BooleanField(
+        default=False,
+    )
+
+    verification_notes = models.TextField(
+        blank=True,
+        default="",
+    )
+
+    class Meta:
+        ordering = ["cluster_number"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["analysis", "cluster_number"],
+                name="unique_cluster_number_per_analysis",
+            )
+        ]
+
+    def __str__(self):
+        return (
+            f"{self.analysis_id} - "
+            f"{self.cluster_name}"
+        )
 
 
-# class ClusterIdea(models.Model):
+class ClusterIdea(models.Model):
 
-#     cluster = models.ForeignKey(
-#         IdeaCluster,
-#         on_delete=models.CASCADE,
-#         related_name="ideas"
-#     )
+    cluster = models.ForeignKey(
+        IdeaCluster,
+        on_delete=models.CASCADE,
+        related_name="ideas",
+    )
 
-#     idea_text = models.TextField()
+    extracted_idea = models.ForeignKey(
+        ExtractedIdea,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="cluster_memberships",
+    )
+
+    idea_text = models.TextField()
+
+    similarity_score = models.FloatField(
+        null=True,
+        blank=True,
+    )
+
+    def __str__(self):
+        return self.idea_text[:80]
