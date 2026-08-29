@@ -61,6 +61,15 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
+            "--participants",
+            type=str,
+            help=(
+                "Comma-separated participant numbers. "
+                "Example: 1,3,4,5,77"
+            ),
+        )
+
+        parser.add_argument(
             "--limit",
             type=int,
             help="Maximum number of sessions to process.",
@@ -75,8 +84,40 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         session_uuid = options.get("session_id")
+        participant_numbers_raw = options.get("participants")
         limit = options.get("limit")
         force = options.get("force", False)
+
+        selected_participants = None
+
+        if participant_numbers_raw:
+            try:
+                selected_participants = [
+                    int(number.strip())
+                    for number in participant_numbers_raw.split(",")
+                    if number.strip()
+                ]
+            except ValueError as error:
+                raise ValueError(
+                    "--participants must contain only comma-separated "
+                    "participant numbers, e.g. 1,3,4,77"
+                ) from error
+
+            if not selected_participants:
+                raise ValueError(
+                    "--participants was provided, but no valid "
+                    "participant numbers were found."
+                )
+
+            self.stdout.write(
+                self.style.SUCCESS(
+                    "Filtering participants: "
+                    + ", ".join(
+                        f"P{number:03d}"
+                        for number in selected_participants
+                    )
+                )
+            )
 
         sessions = (
             ChatSession.objects
@@ -90,6 +131,11 @@ class Command(BaseCommand):
             .distinct()
             .order_by("participant_id", "created_at", "id")
         )
+
+        if selected_participants:
+            sessions = sessions.filter(
+                participant__participant_number__in=selected_participants,
+            )
 
         if session_uuid:
             sessions = sessions.filter(
