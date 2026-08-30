@@ -1,0 +1,86 @@
+{
+  "common": {
+    "home": "Home",
+    "english": "English",
+    "german": "Deutsch",
+    "lightMode": "Light Mode",
+    "darkMode": "Dark Mode",
+    "send": "Send",
+    "thinking": "🤖 Thinking...",
+    "loading": "Loading...",
+    "loadingExperiment": "Loading Experiment...",
+    "continue": "Continue",
+    "close": "Close"
+  },
+
+  "survey": {
+    "redirecting": "Redirecting to survey...",
+    "pleaseWait": "Please wait..."
+  },
+
+  "header": {
+    "title": "Generative AI Research Lab",
+    "subtitle": "University of Koblenz"
+  },
+
+  "homepage": {
+    "heroTitle1": "AI Support for",
+    "heroTitle2": "Research Question",
+    "heroTitle3": "Development",
+
+    "heroDescription": "In this study, you will interact with AI agents while working on a possible research question for a bachelor’s or master’s thesis.",
+
+    "cardTitle": "Start Research Experiment",
+
+    "cardDescription": "Please interact with the AI agents as naturally as possible. There are no correct or incorrect responses. Your honest interaction is what matters most.",
+
+    "startButton": "Start Experiment"
+  },
+
+  "chat": {
+    "placeholder": "Write your message...",
+    "participant": "Participant ID",
+    "ideaGenerator": "Agent 1",
+    "criticalEvaluator": "Agent 2",
+
+    "ideaDescription": " ",
+    "criticalDescription": " "
+  },
+
+  "finish": {
+    "button": "Finish Chat",
+    "title": "⚠️ Attention ⚠️",
+    "message": "Are you sure you want to finish this chat? You cannot continue after proceeding.",
+    "redirectMessage": "Before proceeding, please make sure you remember your final research question. In the next survey, you will be asked to enter your final research question before continuing. Once you proceed, you will not be able to return to this chat session.",
+    "cancel": "Continue Chat",
+    "confirm": "Proceed to Survey"
+  },
+
+  "dashboard": {
+    "title": "Experiment Dashboard"
+  },
+
+  "thankYou": {
+    "title": "Thank You!",
+    "message": "Thank you for participating in our research study.",
+    "footer": "The interview will follow shortly."
+  },
+
+  "continueExperiment": {
+    "title": "Part 2 of the Experiment",
+    "message": "You have successfully completed the first part of the experiment. Next, you will interact with a second AI agent. Please continue the discussion naturally, just as you did in the first part.",
+    "loading": "Preparing the next chat..."
+  },
+
+  "experimentComplete": {
+    "title": "Finalizing the Experiment",
+    "message": "Thank you for completing the experiment. Your responses are being saved. You will be redirected to the final page shortly.",
+    "loading": "Finalizing..."
+  },
+
+  "errors": {
+    "generic": "Something went wrong.",
+    "network": "Network error. Please try again.",
+    "retry": "Retry"
+  }
+}

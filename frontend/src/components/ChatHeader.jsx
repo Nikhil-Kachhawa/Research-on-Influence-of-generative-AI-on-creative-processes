@@ -1,11 +1,20 @@
-import { Link } from "react-router-dom";
-import universityLogo from "../assets/uk.svg";
+import { useTranslation } from "react-i18next";
 
-function ChatHeader({
-  role,
-  darkMode,
-  setDarkMode,
-}) {
+import { useTheme } from "../context/ThemeContext";
+
+import universityLogo from "../assets/uk.svg";
+import LanguageSwitcher from "./LanguageSwitcher";
+
+function ChatHeader({ role }) {
+  const { t } = useTranslation();
+  const { darkMode, toggleTheme } = useTheme();
+
+  const participantNumber = localStorage.getItem("participant_number");
+
+  const formattedParticipantNumber = participantNumber
+    ? String(participantNumber).padStart(3, "0")
+    : "---";
+
   return (
     <header className="border-b border-red-500/30">
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -19,33 +28,40 @@ function ChatHeader({
 
           <div>
             <h1 className="font-bold text-xl">
-              Generative AI Research Lab
+              {t("header.title")}
             </h1>
 
             <p className="text-red-500 text-sm">
-              University of Koblenz
+              {t("header.subtitle")}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
 
-          <Link
-            to="/"
-            className="h-12 px-5 rounded-full border flex items-center border-red-500"
-          >
-            🏠 Home
-          </Link>
+          <LanguageSwitcher darkMode={darkMode} />
 
-          <div className="h-12 px-5 rounded-full border flex items-center border-red-500">
+          {/* Agent */}
+          <div className="h-12 px-5 rounded-full border border-red-500 flex items-center font-medium">
             {role === "idea-generator"
-              ? "💡 Idea Generator"
-              : "🔍 Critical Evaluator"}
+              ? t("chat.ideaGenerator")
+              : t("chat.criticalEvaluator")}
+          </div>
+
+          {/* Participant */}
+          <div className="h-12 px-5 rounded-full border border-red-500 flex items-center font-medium ">
+              {t("chat.participant")}
+            
+            <span className="font-bold text-blue-700 dark:text-red-300">
+              : {formattedParticipantNumber}
+            </span>
+
           </div>
 
           <button
-            onClick={() => setDarkMode(!darkMode)}
-            className="h-12 w-12 rounded-full border border-red-500"
+            onClick={toggleTheme}
+            className="h-12 w-12 rounded-full border border-red-500 hover:bg-red-600 hover:text-white transition"
+            title={darkMode ? t("common.lightMode") : t("common.darkMode")}
           >
             {darkMode ? "☀️" : "🌙"}
           </button>
